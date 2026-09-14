@@ -162,7 +162,6 @@ The app is static for now, but these functions are already marked as the API hoo
 - `Home.jsx` - Default chat page
 - `Documents.jsx` - Documents page
 - `Settings.jsx` - Theme and model settings page
-- `About.jsx` - Project information page
 
 ### `src/services/`
 

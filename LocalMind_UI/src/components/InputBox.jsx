@@ -11,7 +11,7 @@ const InputBox = forwardRef(function InputBox(
     disabled = false,
     loading = false,
     cooldown = 0,
-    placeholder = 'Write a message...',
+    placeholder = 'Ask about your documents or connected data...',
     footer = null,
   },
   ref,
