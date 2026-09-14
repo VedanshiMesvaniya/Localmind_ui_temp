@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Download, FileText, Loader2, Menu, Sparkles } from 'lucide-react'
+import { Download, FileText, FileCheck2, Loader2, Menu } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAppStore } from '../store/store.js'
@@ -49,7 +49,7 @@ export default function Header() {
     setMenuOpen(false)
     if (!canExport || busy) return
     setBusy(true)
-    toast.info('Building your professional document…')
+    toast.info('Building your professional document...')
     try {
       const { markdown, title: docTitle } = await generateChatDocument(activeChatId)
       await exportProfessionalDocument({ title: docTitle, markdown })
@@ -106,7 +106,7 @@ export default function Header() {
                 </span>
               </button>
               <button type="button" className="export-menu__item" role="menuitem" onClick={handleProfessional}>
-                <Sparkles size={16} />
+                <FileCheck2 size={16} />
                 <span>
                   <strong>Professional document</strong>
                   <em>A polished report generated from this chat, charts added</em>

@@ -16,29 +16,12 @@ import { createPortal } from 'react-dom'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/store.js'
 import { useDialogA11y } from '../utils/useDialogA11y.js'
+import BrandMark from './BrandMark.jsx'
 
 function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
-  const titleRef = useRef(null)
-  const windowRef = useRef(null)
-  const [offset, setOffset] = useState(0)
-
-  const handleMouseEnter = () => {
-    if (!titleRef.current || !windowRef.current) return
-    const overflow = titleRef.current.scrollWidth - windowRef.current.clientWidth
-    if (overflow > 1) {
-      setOffset(overflow)
-    }
-  }
-
-  const handleMouseLeave = () => {
-    setOffset(0)
-  }
-
   return (
     <div
       className={`chat-item ${isActive ? 'chat-item--active' : ''} ${isMenuOpen ? 'chat-item--menu-open' : ''}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
     >
       <button
         type="button"
@@ -46,19 +29,8 @@ function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
         onClick={onSelect}
       >
         <MessageSquare size={14} className="chat-item__icon" aria-hidden="true" />
-        <span ref={windowRef} className="chat-item__title-window">
-          <span
-            ref={titleRef}
-            className="chat-item__title"
-            style={{
-              transform: offset > 0 ? `translateX(-${offset}px)` : 'translateX(0)',
-              transition: offset > 0
-                ? `transform ${Math.max(1.6, offset * 0.022)}s linear 0.35s`
-                : 'transform 0.22s ease-out',
-            }}
-          >
-            {chat.title}
-          </span>
+        <span className="chat-item__title-window">
+          <span className="chat-item__title">{chat.title}</span>
         </span>
       </button>
 
@@ -75,6 +47,7 @@ function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
     </div>
   )
 }
+
 
 export default function Sidebar() {
   const chats = useAppStore((state) => state.chats)
@@ -265,6 +238,7 @@ export default function Sidebar() {
         <div className="brand">
           <div className="brand__row">
             <div className="brand__lockup">
+              <BrandMark size={20} className="brand__mark" />
               <div className="brand__type">
                 <h1 className="brand__title">Local Mind</h1>
                 <p className="brand__subtitle">Private data intelligence</p>

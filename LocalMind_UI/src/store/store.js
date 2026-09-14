@@ -907,12 +907,14 @@ export const useAppStore = create((set, get) => ({
         description: `Successfully embedded ${tables} table${plural(tables)} into the vector store.`,
         duration: 5000,
       })
+      return { ok: true, tables }
     } catch (error) {
       toast.error('Schema sync failed', {
         id: toastId,
         description: error.response?.data?.detail || error.message || 'Could not sync schema.',
         duration: 6000,
       })
+      return { ok: false, error }
     }
   },
 

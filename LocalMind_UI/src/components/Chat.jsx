@@ -63,9 +63,10 @@ export default function Chat() {
     if (!container) return undefined
 
     const frame = window.requestAnimationFrame(() => {
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       container.scrollTo({
         top: container.scrollHeight,
-        behavior: 'smooth',
+        behavior: reduceMotion ? 'auto' : 'smooth',
       })
     })
 

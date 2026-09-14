@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, ChevronUp, Database, FileText, Sparkles } from 'lucide-react'
+import { Check, ChevronDown, ChevronUp, Database, FileText, Route } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAppStore } from '../store/store.js'
 
@@ -9,7 +9,7 @@ export const MODES = [
     name: 'Auto (Hybrid)',
     tag: 'Smart',
     speed: 'Auto',
-    icon: Sparkles,
+    icon: Route,
   },
   {
     id: 'sql',

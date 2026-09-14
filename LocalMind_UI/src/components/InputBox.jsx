@@ -62,21 +62,6 @@ const InputBox = forwardRef(function InputBox(
           ) : cooldown > 0 ? (
             <div
               className="composer__cooldown"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '11px',
-                fontWeight: 600,
-                color: '#888',
-                cursor: 'not-allowed',
-                userSelect: 'none',
-                minWidth: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.12)'
-              }}
               title={`Rate protection: ready in ${cooldown}s`}
             >
               {cooldown}s

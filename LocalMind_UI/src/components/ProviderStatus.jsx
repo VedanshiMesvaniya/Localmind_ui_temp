@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Activity, Check, ChevronDown, Gauge, RotateCw, Sparkles, Zap } from 'lucide-react'
+import { Binary, Check, ChevronDown, Gauge, RotateCw, SendHorizontal } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAppStore } from '../store/store.js'
 
@@ -118,6 +118,13 @@ export default function ProviderStatus() {
       : (providerUsage || []).filter((p) => p.id === activeId)
 
   const { level, cooling, highest } = summarize(visibleUsage)
+  const healthLabel = cooling
+    ? 'Cooling'
+    : level === 'crit'
+      ? 'Critical'
+      : level === 'warn'
+        ? 'Warning'
+        : 'Healthy'
 
   const handleRefresh = async () => {
     if (isRefreshing) return
@@ -197,10 +204,11 @@ export default function ProviderStatus() {
           }}
           aria-haspopup="dialog"
           aria-expanded={usageOpen}
-          aria-label="Show provider telemetry"
-          title="Provider Telemetry & Bottlenecks"
+          aria-label={`Show provider telemetry. ${healthLabel}`}
+          title="Provider telemetry and bottlenecks"
         >
           <span className="provider-status__dot-core" />
+          <span className="provider-status__dot-label">{healthLabel}</span>
         </button>
 
         <AnimatePresence>
@@ -275,7 +283,7 @@ export default function ProviderStatus() {
                               </span>
                             ) : bottleneck.pct >= 90 ? (
                               <span className="status-pill status-pill--crit">
-                                ⚠️ {bottleneck.pct}% {bottleneck.label}
+                                {bottleneck.pct}% {bottleneck.label}
                               </span>
                             ) : bottleneck.pct >= 70 ? (
                               <span className="status-pill status-pill--warn">
@@ -310,7 +318,7 @@ export default function ProviderStatus() {
                           <div className="smart-track">
                             <div
                               className={`smart-fill smart-fill--${bottleneck.level}`}
-                              style={{ width: `${Math.max(bottleneck.pct, 2)}%` }}
+                              style={{ transform: `scaleX(${Math.max(bottleneck.pct, 2) / 100})` }}
                             />
                           </div>
                         </div>
@@ -319,24 +327,24 @@ export default function ProviderStatus() {
                         <div className="smart-matrix">
                           <div className="smart-pill">
                             <span className="smart-pill__icon" title="Requests">
-                              <Zap size={11} />
+                              <SendHorizontal size={11} />
                             </span>
                             <div className="smart-pill__data">
                               <span className="smart-pill__title">Requests</span>
                               <span className="smart-pill__values">
-                                {p.rpmUsed}/{p.rpmLimit}m · {formatCompact(p.rpdUsed)}/{formatCompact(p.rpdLimit)}d
+                                {p.rpmUsed}/{p.rpmLimit}m / {formatCompact(p.rpdUsed)}/{formatCompact(p.rpdLimit)}d
                               </span>
                             </div>
                           </div>
 
                           <div className="smart-pill">
                             <span className="smart-pill__icon" title="Tokens">
-                              <Sparkles size={11} />
+                              <Binary size={11} />
                             </span>
                             <div className="smart-pill__data">
                               <span className="smart-pill__title">Tokens</span>
                               <span className="smart-pill__values">
-                                {formatCompact(p.tpmUsed)}/{formatCompact(p.tpmLimit)}m · {formatCompact(p.tpdUsed)}/{formatCompact(p.tpdLimit)}d
+                                {formatCompact(p.tpmUsed)}/{formatCompact(p.tpmLimit)}m / {formatCompact(p.tpdUsed)}/{formatCompact(p.tpdLimit)}d
                               </span>
                             </div>
                           </div>

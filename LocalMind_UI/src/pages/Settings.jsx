@@ -1,4 +1,5 @@
-import { Check, Database, Sparkles } from 'lucide-react'
+import { useState } from 'react'
+import { Check, Database, Palette } from 'lucide-react'
 import { motion } from 'framer-motion'
 import Button from '../components/Button.jsx'
 import { useAppStore } from '../store/store.js'
@@ -13,9 +14,22 @@ export default function Settings() {
   const settings = useAppStore((state) => state.settings)
   const updateSettings = useAppStore((state) => state.updateSettings)
   const runSchemaSync = useAppStore((state) => state.runSchemaSync)
+  const [schemaStatus, setSchemaStatus] = useState('idle')
 
   const current = settings || { theme: 'light' }
   const setSetting = (patch) => updateSettings(patch)
+  const schemaStatusText = {
+    idle: 'Ready to sync database schema.',
+    syncing: 'Syncing schema...',
+    complete: 'Schema sync complete.',
+    failed: 'Schema sync failed. Retry.',
+  }[schemaStatus]
+
+  const handleSchemaSync = async () => {
+    setSchemaStatus('syncing')
+    const result = await runSchemaSync()
+    setSchemaStatus(result?.ok === false ? 'failed' : 'complete')
+  }
 
   return (
     <section className="page settings-page">
@@ -33,10 +47,9 @@ export default function Settings() {
       >
         <div className="settings-panel__heading">
           <div className="settings-panel__title-wrap">
-            <Sparkles size={16} />
+            <Palette size={16} />
             <h3 className="settings-panel__title">Appearance</h3>
           </div>
-          <span className="settings-panel__rule" />
         </div>
 
         <div className="setting-row">
@@ -103,7 +116,6 @@ export default function Settings() {
             <Database size={16} />
             <h3 className="settings-panel__title">Data Sync</h3>
           </div>
-          <span className="settings-panel__rule" />
         </div>
 
         <div className="setting-row">
@@ -112,10 +124,13 @@ export default function Settings() {
             Fetches your live database tables, chunks them, and embeds them into the vector store.
             Run this whenever you add, alter, or drop tables in your database so the AI knows about them.
           </p>
-          <div style={{ marginTop: '1rem' }}>
-            <Button variant="primary" onClick={() => runSchemaSync()}>
+          <div className="setting-actions">
+            <Button variant="primary" onClick={handleSchemaSync} disabled={schemaStatus === 'syncing'}>
               Sync Database Schema
             </Button>
+            <span className={`setting-status setting-status--${schemaStatus}`} role="status" aria-live="polite">
+              {schemaStatusText}
+            </span>
           </div>
         </div>
       </motion.section>

@@ -17,7 +17,7 @@ import { useDialogA11y } from '../utils/useDialogA11y.js'
 
 function formatBytes(bytes) {
   const value = Number(bytes)
-  if (!value || value < 0) return '—'
+  if (!value || value < 0) return '-'
   const units = ['B', 'KB', 'MB', 'GB']
   let size = value
   let unit = 0
@@ -142,7 +142,7 @@ export default function Documents() {
         <div className="section__header-actions">
           <button type="button" className="primary-button" disabled={isUploading} onClick={handleUploadClick}>
             {isUploading ? <Loader2 size={16} className="spin" /> : <Upload size={16} />}
-            <span>{isUploading ? 'Processing…' : 'Upload document'}</span>
+            <span>{isUploading ? 'Processing...' : 'Upload document'}</span>
           </button>
         </div>
       </div>
@@ -175,11 +175,11 @@ export default function Documents() {
                     <div className="doc-row__body">
                       <p className="doc-row__title">
                         {doc.name}
-                        {doc.versionCount > 1 ? <span className="doc-row__badge"> · v{doc.versionCount}</span> : null}
+                        {doc.versionCount > 1 ? <span className="doc-row__badge"> / v{doc.versionCount}</span> : null}
                       </p>
                       <p className="doc-row__meta">
-                        {fileExtension(doc.name)} · {formatBytes(doc.sizeBytes)} · {doc.chunks ?? 0} chunks
-                        {doc.ingestedAt ? ` · Added ${dayjs(doc.ingestedAt).format('MMM D, HH:mm')}` : ''}
+                        {fileExtension(doc.name)} / {formatBytes(doc.sizeBytes)} / {doc.chunks ?? 0} chunks
+                        {doc.ingestedAt ? ` / Added ${dayjs(doc.ingestedAt).format('MMM D, HH:mm')}` : ''}
                       </p>
                     </div>
                   </button>
@@ -257,7 +257,7 @@ export default function Documents() {
                   <div>
                     <span className="ingestion-panel__summary-label">Added</span>
                     <span className="ingestion-panel__summary-value">
-                      {selectedDoc.ingestedAt ? dayjs(selectedDoc.ingestedAt).format('MMM D, YYYY') : '—'}
+                      {selectedDoc.ingestedAt ? dayjs(selectedDoc.ingestedAt).format('MMM D, YYYY') : '-'}
                     </span>
                   </div>
                   <div>
@@ -266,7 +266,7 @@ export default function Documents() {
                   </div>
                 </div>
                 <p className="ingestion-panel__note">
-                  Already ingested — live per-stage detail is only available while a document is actively processing.
+                  Already ingested. Live per-stage detail is only available while a document is actively processing.
                   Reupload to watch it run again.
                 </p>
               </>
