@@ -27,7 +27,7 @@ export default function ThinkingTrace({ steps = [], streaming = false }) {
         aria-expanded={open}
       >
         <Brain size={14} className="thinking__icon" />
-        <span className="thinking__label">{streaming ? 'Thinking…' : 'Thought process'}</span>
+        <span className="thinking__label">{streaming ? 'Thinking…' : 'How this answer was assembled'}</span>
         <ChevronDown
           size={14}
           className={`thinking__chevron ${open ? 'thinking__chevron--open' : ''}`}

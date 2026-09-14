@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { toast } from 'sonner'
+import { useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/store.js'
 import InputBox from './InputBox.jsx'
 import Loader from './Loader.jsx'
@@ -16,9 +16,9 @@ export default function Chat() {
   const sendPrompt = useAppStore((state) => state.sendPrompt)
   const stopGeneration = useAppStore((state) => state.stopGeneration)
   const activeRequest = useAppStore((state) => state.activeRequest)
-  const chats = useAppStore((state) => state.chats)
   const loading = useAppStore((state) => state.loading)
   const value = draftsByChatId[activeChatId || '__pending__'] || ''
+  const navigate = useNavigate()
   const inputRef = useRef(null)
   const bottomRef = useRef(null)
   const isGenerating = Boolean(activeRequest)
@@ -47,11 +47,12 @@ export default function Chat() {
   )
   const lastMessageId = messages[messages.length - 1]?.id
 
-  useEffect(() => {
-    if (!chats.length) {
-      toast.info('Waiting for demo chat data.')
-    }
-  }, [chats.length])
+  // Task starters only fill the composer through the existing draft state,
+  // sending still goes through the normal submit flow, nothing new is called.
+  const handleStarterDraft = (prompt) => {
+    setDraft(activeChatId, prompt)
+    inputRef.current?.focus()
+  }
 
   useEffect(() => {
     inputRef.current?.focus()
@@ -94,22 +95,43 @@ export default function Chat() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <h2 className="hero__title">What would you like to know?</h2>
+                <h2 className="hero__title">Ask about your documents or data</h2>
                 <div className="feature-grid">
-                  <article className="feature-card">
-                    <strong className="feature-card__title">Multi-Format Support</strong>
-                    <p className="feature-card__text">PDF, DOCX, PPTX, Excel, CSV, MD, TXT.</p>
-                  </article>
+                  <button
+                    type="button"
+                    className="feature-card feature-card--action"
+                    onClick={() => handleStarterDraft('Search the knowledge base for ')}
+                  >
+                    <strong className="feature-card__title">Search the knowledge base</strong>
+                    <p className="feature-card__text">Find an answer across uploaded documents.</p>
+                  </button>
 
-                  <article className="feature-card">
-                    <strong className="feature-card__title">Trusted Answers</strong>
-                    <p className="feature-card__text">Responses based only on your data & documents.</p>
-                  </article>
+                  <button
+                    type="button"
+                    className="feature-card feature-card--action"
+                    onClick={() => handleStarterDraft('Query connected data for ')}
+                  >
+                    <strong className="feature-card__title">Query connected data</strong>
+                    <p className="feature-card__text">Ask for counts, totals, trends, or comparisons.</p>
+                  </button>
 
-                  <article className="feature-card">
-                    <strong className="feature-card__title">Instant Search</strong>
-                    <p className="feature-card__text">Find answers with a simple question.</p>
-                  </article>
+                  <button
+                    type="button"
+                    className="feature-card feature-card--action"
+                    onClick={() => handleStarterDraft('Trace the sources behind the answer to ')}
+                  >
+                    <strong className="feature-card__title">Trace an answer</strong>
+                    <p className="feature-card__text">See which documents or database records support it.</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="feature-card feature-card--action"
+                    onClick={() => navigate('/documents')}
+                  >
+                    <strong className="feature-card__title">Open Documents</strong>
+                    <p className="feature-card__text">Upload or inspect the source material.</p>
+                  </button>
                 </div>
               </motion.div>
             )}

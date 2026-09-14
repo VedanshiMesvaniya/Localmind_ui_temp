@@ -1130,7 +1130,7 @@ html[data-scrolling='true'] .main-scroll::-webkit-scrollbar-thumb {
 
 .feature-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   width: min(100%, 860px);
 }
@@ -1146,6 +1146,13 @@ html[data-scrolling='true'] .main-scroll::-webkit-scrollbar-thumb {
     transform 180ms ease,
     border-color 180ms ease,
     background 180ms ease;
+}
+
+.feature-card--action {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
 }
 
 .feature-card:hover {
@@ -2402,16 +2409,24 @@ html[data-scrolling='true'] .composer__input::-webkit-scrollbar-thumb {
   background: transparent;
 }
 
-.doc-row--selectable {
+.doc-row__select {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
   width: 100%;
   font: inherit;
   color: inherit;
   text-align: left;
   cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
   transition: background 150ms ease, border-color 150ms ease;
 }
 
-.doc-row--selectable:hover {
+.doc-row__select:hover {
   background: color-mix(in srgb, var(--text-primary) 5%, transparent);
 }
 
@@ -3973,4 +3988,14 @@ html[data-scrolling='true'] .error-screen__stack::-webkit-scrollbar-thumb {
 .theme-option--selected .theme-option__label {
   color: var(--text-primary);
   font-weight: 500;
+}
+
+/* --- Accessibility: keyboard focus-visible contract ----------------------- */
+/* Applies a visible ring only for keyboard focus, on top of any existing
+   :focus styling (border-color, etc). This is what replaces outline:none
+   for keyboard users across inputs, buttons, and interactive elements. */
+:where(button, a, input, textarea, select, [role='button'], [role='menuitem'], [tabindex='0']):focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--focus-ring) 22%, transparent);
 }

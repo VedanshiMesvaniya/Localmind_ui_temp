@@ -15,6 +15,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/store.js'
+import { useDialogA11y } from '../utils/useDialogA11y.js'
 
 function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
   const titleRef = useRef(null)
@@ -96,6 +97,16 @@ export default function Sidebar() {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [menuPosition, setMenuPosition] = useState(null)
   const [dialog, setDialog] = useState({ type: null, chat: null, value: '' })
+  const dialogRef = useRef(null)
+  const dialogInputRef = useRef(null)
+  const dialogCancelRef = useRef(null)
+
+  useDialogA11y({
+    isOpen: Boolean(dialog.type),
+    onClose: () => closeDialog(),
+    containerRef: dialogRef,
+    initialFocusRef: dialog.type === 'rename' ? dialogInputRef : dialogCancelRef,
+  })
 
   useEffect(() => {
     if (!openMenuId) return undefined
@@ -381,19 +392,27 @@ export default function Sidebar() {
 
       {dialog.type ? (
         <div className="dialog-backdrop" role="presentation" onClick={closeDialog}>
-          <div className="dialog-card" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
+          <div
+            ref={dialogRef}
+            className="dialog-card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="chat-dialog-title"
+            aria-describedby="chat-dialog-desc"
+            onClick={(e) => e.stopPropagation()}
+          >
             <p className="dialog-card__eyebrow">Chat action</p>
-            <h3 className="dialog-card__title">
+            <h3 id="chat-dialog-title" className="dialog-card__title">
               {dialog.type === 'rename' ? 'Rename chat' : 'Delete chat'}
             </h3>
-            <p className="dialog-card__text">
+            <p id="chat-dialog-desc" className="dialog-card__text">
               {dialog.type === 'rename'
                 ? 'Give this conversation a new name.'
                 : `This will remove "${dialog.chat?.title}" from recent chats.`}
             </p>
             {dialog.type === 'rename' ? (
               <input
-                autoFocus
+                ref={dialogInputRef}
                 className="dialog-card__input"
                 value={dialog.value}
                 onChange={(e) => setDialog((c) => ({ ...c, value: e.target.value }))}
@@ -401,7 +420,7 @@ export default function Sidebar() {
               />
             ) : null}
             <div className="dialog-card__actions">
-              <button type="button" className="secondary-button" onClick={closeDialog}>Cancel</button>
+              <button ref={dialogCancelRef} type="button" className="secondary-button" onClick={closeDialog}>Cancel</button>
               <button
                 type="button"
                 className={`primary-button ${dialog.type === 'delete' ? 'primary-button--danger' : ''}`}
