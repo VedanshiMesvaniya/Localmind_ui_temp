@@ -1,0 +1,152 @@
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { toast } from 'sonner'
+import { useAppStore } from '../store/store.js'
+import InputBox from './InputBox.jsx'
+import Loader from './Loader.jsx'
+import Message from './Message.jsx'
+import ModeSelector from './ModeSelector.jsx'
+import ProviderStatus from './ProviderStatus.jsx'
+
+export default function Chat() {
+  const activeChatId = useAppStore((state) => state.activeChatId)
+  const messagesByChatId = useAppStore((state) => state.messagesByChatId)
+  const draftsByChatId = useAppStore((state) => state.draftsByChatId)
+  const setDraft = useAppStore((state) => state.setDraft)
+  const sendPrompt = useAppStore((state) => state.sendPrompt)
+  const stopGeneration = useAppStore((state) => state.stopGeneration)
+  const activeRequest = useAppStore((state) => state.activeRequest)
+  const chats = useAppStore((state) => state.chats)
+  const loading = useAppStore((state) => state.loading)
+  const value = draftsByChatId[activeChatId || '__pending__'] || ''
+  const inputRef = useRef(null)
+  const bottomRef = useRef(null)
+  const isGenerating = Boolean(activeRequest)
+  const [cooldown, setCooldown] = useState(0)
+  const prevGeneratingRef = useRef(isGenerating)
+
+  useEffect(() => {
+    // When generation completes, trigger 3s rate-protection cooldown
+    if (prevGeneratingRef.current && !isGenerating) {
+      setCooldown(3)
+    }
+    prevGeneratingRef.current = isGenerating
+  }, [isGenerating])
+
+  useEffect(() => {
+    if (cooldown <= 0) return
+    const timer = setTimeout(() => {
+      setCooldown((prev) => Math.max(0, prev - 1))
+    }, 1000)
+    return () => clearTimeout(timer)
+  }, [cooldown])
+
+  const messages = useMemo(
+    () => messagesByChatId[activeChatId] || [],
+    [activeChatId, messagesByChatId],
+  )
+  const lastMessageId = messages[messages.length - 1]?.id
+
+  useEffect(() => {
+    if (!chats.length) {
+      toast.info('Waiting for demo chat data.')
+    }
+  }, [chats.length])
+
+  useEffect(() => {
+    inputRef.current?.focus()
+  }, [activeChatId])
+
+  useLayoutEffect(() => {
+    const container = document.querySelector('.main-scroll')
+    if (!container) return undefined
+
+    const frame = window.requestAnimationFrame(() => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      })
+    })
+
+    return () => window.cancelAnimationFrame(frame)
+  }, [activeChatId, lastMessageId, loading])
+
+  return (
+    <section className="chat-panel">
+      <div className="message-stream">
+        <div className="chat-panel__inner">
+          <AnimatePresence mode="popLayout">
+            {messages.length ? (
+              messages.map((message, index) => (
+                <Message
+                  key={message.id}
+                  message={message}
+                  index={index}
+                  chatId={activeChatId}
+                  hasLaterUserMessage={messages.slice(index + 1).some((entry) => entry.role === 'user')}
+                  isLast={index === messages.length - 1}
+                />
+              ))
+            ) : (
+              <motion.div
+                key="empty"
+                className="hero"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <h2 className="hero__title">What would you like to know?</h2>
+                <div className="feature-grid">
+                  <article className="feature-card">
+                    <strong className="feature-card__title">Multi-Format Support</strong>
+                    <p className="feature-card__text">PDF, DOCX, PPTX, Excel, CSV, MD, TXT.</p>
+                  </article>
+
+                  <article className="feature-card">
+                    <strong className="feature-card__title">Trusted Answers</strong>
+                    <p className="feature-card__text">Responses based only on your data & documents.</p>
+                  </article>
+
+                  <article className="feature-card">
+                    <strong className="feature-card__title">Instant Search</strong>
+                    <p className="feature-card__text">Find answers with a simple question.</p>
+                  </article>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {loading && !isGenerating ? <Loader /> : null}
+          <div ref={bottomRef} aria-hidden="true" />
+        </div>
+      </div>
+
+      <div className="composer">
+        <InputBox
+          ref={inputRef}
+          value={value}
+          onChange={(text) => setDraft(activeChatId, text)}
+          onSubmit={async () => {
+            if (isGenerating) return
+            const prompt = value.trim()
+            if (!prompt) return
+            await sendPrompt(prompt)
+            inputRef.current?.focus()
+          }}
+          onStop={() => {
+            stopGeneration()
+            inputRef.current?.focus()
+          }}
+          loading={isGenerating}
+          disabled={isGenerating}
+          cooldown={cooldown}
+          footer={
+            <div className="composer__footer-tools">
+              <ModeSelector />
+              <ProviderStatus />
+            </div>
+          }
+        />
+      </div>
+    </section>
+  )
+}
