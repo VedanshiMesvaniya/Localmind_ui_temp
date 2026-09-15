@@ -13,6 +13,7 @@ const InputBox = forwardRef(function InputBox(
     cooldown = 0,
     placeholder = 'Ask about your documents or connected data...',
     footer = null,
+    modeSlot = null,
   },
   ref,
 ) {
@@ -50,6 +51,7 @@ const InputBox = forwardRef(function InputBox(
       <div className="composer__footer">
         <div className="composer__footer-left">{footer}</div>
         <div className="composer__actions">
+          {modeSlot}
           {loading ? (
             <button
               type="button"

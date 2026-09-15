@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Download, FileCheck2, FileText, Loader2, Menu, Moon, Sun } from 'lucide-react'
+import { Check, ChevronDown, Download, FileCheck2, FileText, Loader2, Menu } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
@@ -105,8 +105,6 @@ export default function Header() {
   const activeChatId = useAppStore((state) => state.activeChatId)
   const chats = useAppStore((state) => state.chats)
   const messagesByChatId = useAppStore((state) => state.messagesByChatId)
-  const settings = useAppStore((state) => state.settings)
-  const updateSettings = useAppStore((state) => state.updateSettings)
   const [downloadOpen, setDownloadOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const downloadRef = useRef(null)
@@ -118,16 +116,11 @@ export default function Header() {
     (message) => message != null && message.status !== 'loading' && message.kind !== 'ingestion',
   )
   const canExport = Boolean(activeChat) && exportableMessages.length > 0
-  const currentTheme = settings?.theme || 'dark'
   const pageTitle = isChatRoute
     ? (activeChat?.title || 'LocalMind')
     : location.pathname.slice(1).charAt(0).toUpperCase() + location.pathname.slice(2)
 
   useDismiss(downloadRef, () => setDownloadOpen(false), downloadOpen)
-
-  const toggleTheme = () => {
-    updateSettings({ theme: currentTheme === 'dark' ? 'light' : 'dark' })
-  }
 
   const handleTranscript = async () => {
     setDownloadOpen(false)
@@ -174,16 +167,6 @@ export default function Header() {
       </div>
 
       <div className="header__actions">
-        <button
-          type="button"
-          className="icon-button header__action-btn"
-          onClick={toggleTheme}
-          title={`Switch to ${currentTheme === 'dark' ? 'light' : 'dark'} mode`}
-          aria-label="Toggle theme"
-        >
-          {currentTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-        </button>
-
         {isChatRoute ? (
           <>
             <div className="topbar-download" ref={downloadRef}>

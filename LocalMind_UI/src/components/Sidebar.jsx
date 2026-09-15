@@ -7,7 +7,6 @@ import {
   PencilLine,
   Pin,
   PinOff,
-  Search,
   Settings,
   SquarePen,
   Trash2,
@@ -61,7 +60,6 @@ export default function Sidebar() {
   const navigate = useNavigate()
   const location = useLocation()
   const isChatRouteActive = location.pathname === '/' || location.pathname === '/chat'
-  const [searchQuery, setSearchQuery] = useState('')
   const [openMenuId, setOpenMenuId] = useState(null)
   const [menuPosition, setMenuPosition] = useState(null)
   const [dialog, setDialog] = useState({ type: null, chat: null, value: '' })
@@ -94,18 +92,16 @@ export default function Sidebar() {
   }, [openMenuId])
 
   const { pinned, recent } = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
     const pinnedList = []
     const recentList = []
 
     for (const chat of chats) {
-      if (query && !chat.title?.toLowerCase().includes(query)) continue
       if (pinnedChatIds.has(chat.id)) pinnedList.push(chat)
       else recentList.push(chat)
     }
 
     return { pinned: pinnedList, recent: recentList }
-  }, [chats, pinnedChatIds, searchQuery])
+  }, [chats, pinnedChatIds])
 
   const handleNewChat = async () => {
     closeMenu()
@@ -250,18 +246,6 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <div className="sidebar__search-row">
-          <Search size={16} className="sidebar__search-icon" aria-hidden="true" />
-          <input
-            type="text"
-            className="sidebar__search-input"
-            placeholder="Search conversations..."
-            value={searchQuery}
-            onChange={(event) => setSearchQuery(event.target.value)}
-            aria-label="Search conversations"
-          />
-        </div>
-
         <div className="sidebar__new-chat-row">
           <button type="button" className="new-chat-action" onClick={handleNewChat}>
             <SquarePen size={16} />
@@ -303,7 +287,7 @@ export default function Sidebar() {
                 <p className="section-title">Recent chats</p>
                 <div className="chat-list">
                   {recent.length ? renderChatList(recent) : (
-                    pinned.length === 0 ? <p className="chat-list__empty">{searchQuery ? 'No matching chats' : 'No chats yet'}</p> : null
+                    pinned.length === 0 ? <p className="chat-list__empty">No chats yet</p> : null
                   )}
                 </div>
               </section>
