@@ -29,6 +29,7 @@ function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
         onClick={onSelect}
       >
         <MessageSquare size={16} className="chat-item__icon" aria-hidden="true" />
+        <MessageSquare size={14} className="chat-item__icon" aria-hidden="true" />
         <span className="chat-item__title-window">
           <span className="chat-item__title">{chat.title}</span>
         </span>
@@ -42,6 +43,7 @@ function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
           onClick={(e) => onToggleMenu(chat, e)}
         >
           <MoreHorizontal size={15} />
+          <MoreHorizontal size={14} />
         </button>
       </div>
     </div>
@@ -108,6 +110,7 @@ export default function Sidebar() {
     }
     return { pinned: pinnedList, recent: recentList }
   }, [chats, pinnedChatIds, searchQuery])
+  }, [chats, pinnedChatIds])
 
   const handleNewChat = async () => {
     setOpenMenuId(null)
@@ -210,6 +213,8 @@ export default function Sidebar() {
           <SquarePen size={18} />
         </button>
 
+        <div className="sidebar-rail__spacer" />
+
         <NavLink
           to="/documents"
           className={({ isActive }) =>
@@ -272,6 +277,7 @@ export default function Sidebar() {
         <div className="sidebar__new-chat-row">
           <button type="button" className="new-chat-action" onClick={handleNewChat}>
             <SquarePen size={16} />
+            <SquarePen size={15} />
             <span>New chat</span>
           </button>
         </div>
@@ -288,10 +294,12 @@ export default function Sidebar() {
           </NavLink>
         </nav>
 
+        {/* Chat history */}
         <div className="sidebar__scroll scrollbar-auto">
           {chatsLoading ? (
             <section className="sidebar__section sidebar__section--grow">
               <p className="section-title">Recent chats</p>
+              <p className="section-title">Chats</p>
               <div className="chat-list" aria-busy="true" aria-label="Loading chats">
                 {[0, 1, 2, 3].map((i) => (
                   <div key={i} className="chat-item-skeleton" style={{ animationDelay: `${i * 80}ms` }} />
@@ -309,9 +317,11 @@ export default function Sidebar() {
 
               <section className="sidebar__section sidebar__section--grow">
                 <p className="section-title">Recent chats</p>
+                <p className="section-title">Chats</p>
                 <div className="chat-list">
                   {recent.length ? renderChatList(recent) : (
                     pinned.length === 0 ? <p className="chat-list__empty">{searchQuery ? 'No matching chats' : 'No chats yet'}</p> : null
+                    pinned.length === 0 ? <p className="chat-list__empty">No chats yet</p> : null
                   )}
                 </div>
               </section>
@@ -320,14 +330,25 @@ export default function Sidebar() {
         </div>
 
         {/* Settings & Help */}
+        {/* Footer: Documents + Settings */}
         <footer className="sidebar__footer">
           <p className="section-title">Settings & Help</p>
+          <div className="sidebar__footer-divider" />
+          <NavLink
+            to="/documents"
+            className={({ isActive }) => `nav-item nav-item--footer ${isActive ? 'nav-item--active' : ''}`}
+            onClick={closeSidebar}
+          >
+            <Library size={15} />
+            <span>Documents</span>
+          </NavLink>
           <NavLink
             to="/settings"
             className={({ isActive }) => `nav-item nav-item--footer ${isActive ? 'nav-item--active' : ''}`}
             onClick={closeSidebar}
           >
             <Settings size={16} />
+            <Settings size={15} />
             <span>Settings</span>
           </NavLink>
         </footer>
@@ -396,6 +417,7 @@ export default function Sidebar() {
               {dialog.type === 'rename'
                 ? 'Give this conversation a new name.'
                 : `This will remove "${dialog.chat?.title}" from recent chats.`}
+                : `This will remove "${dialog.chat?.title}" from your chats.`}
             </p>
             {dialog.type === 'rename' ? (
               <input

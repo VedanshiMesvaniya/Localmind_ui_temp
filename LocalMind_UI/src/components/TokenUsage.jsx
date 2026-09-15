@@ -1,5 +1,7 @@
 import { Coins, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 
 const fmt = (n) => (n ?? 0).toLocaleString()
 
@@ -12,6 +14,10 @@ const fmt = (n) => (n ?? 0).toLocaleString()
  *
  * Renders nothing when no usage was captured — e.g. answers served straight
  * from the document registry, which make no LLM call and so cost 0 tokens.
+ * Compact collapsible token-usage line shown at the end of an assistant answer.
+ * Collapsed:  "1,284 tokens · 2 LLM calls  ˅"
+ * Expanded:   Clean breakdown table with model + provider.
+ * Renders nothing when no usage was captured.
  */
 export default function TokenUsage({ usage }) {
   const [open, setOpen] = useState(false)
@@ -31,9 +37,13 @@ export default function TokenUsage({ usage }) {
     ...(thinking > 0
       ? [{ key: 'thinking', label: 'Thinking', hint: 'hidden reasoning', value: thinking }]
       : []),
+    { key: 'input', label: 'Input', value: input },
+    { key: 'output', label: 'Output', value: output },
+    ...(thinking > 0 ? [{ key: 'thinking', label: 'Thinking', value: thinking }] : []),
   ]
 
   const pct = (v) => (total ? `${(v / total) * 100}%` : '0%')
+  const callsText = usage.calls ? `· ${usage.calls} LLM call${usage.calls === 1 ? '' : 's'}` : ''
 
   const bar = (
     <span className="token__bar" aria-hidden="true">
@@ -59,8 +69,12 @@ export default function TokenUsage({ usage }) {
         <Coins size={13} className="token__icon" />
         <span className="token__label">{fmt(total)} tokens</span>
         <span className="token__bar-wrap token__bar-wrap--mini">{bar}</span>
+        <span className="token__summary">
+          {fmt(total)} tokens {callsText}
+        </span>
         <ChevronDown
           size={13}
+          size={12}
           className={`token__chevron ${open ? 'token__chevron--open' : ''}`}
         />
       </button>
@@ -75,6 +89,26 @@ export default function TokenUsage({ usage }) {
                 <span className="token__row-label">{s.label}</span>
                 <span className="token__row-hint">{s.hint}</span>
                 <span className="token__row-value">{fmt(s.value)}</span>
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            className="token__details"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            <p className="token__details-heading">Token usage</p>
+            <ul className="token__rows">
+              {segments.map((s) => (
+                <li key={s.key} className="token__row">
+                  <span className="token__row-label">{s.label}</span>
+                  <span className="token__row-value">{fmt(s.value)}</span>
+                </li>
+              ))}
+              <li className="token__row token__row--total">
+                <span className="token__row-label">Total</span>
+                <span className="token__row-value">{fmt(total)}</span>
               </li>
             ))}
             <li className="token__row token__row--total">
@@ -88,6 +122,14 @@ export default function TokenUsage({ usage }) {
                 {usage.provider ? `${usage.provider} · ` : ''}
                 {usage.model}
               </span>
+            </ul>
+            {(usage.model || usage.calls) ? (
+              <p className="token__meta">
+                {usage.provider && usage.model
+                  ? `${usage.provider} · ${usage.model}`
+                  : usage.model || ''}
+                {usage.calls ? `${usage.model ? ' · ' : ''}${usage.calls} LLM call${usage.calls === 1 ? '' : 's'}` : ''}
+              </p>
             ) : null}
             {usage.calls ? (
               <span className="token__meta-item">
@@ -97,6 +139,9 @@ export default function TokenUsage({ usage }) {
           </div>
         </div>
       ) : null}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   )
 }

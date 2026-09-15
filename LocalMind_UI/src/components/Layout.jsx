@@ -56,6 +56,9 @@ export function Layout() {
           <div className="surface">
             <Outlet />
           </div>
+        {/* Single workspace — no surface wrapper, no nested card */}
+        <div className="workspace">
+          <Outlet />
         </div>
       </main>
     </div>

@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Database, FileText, Route } from 'lucide-react'
 import { useAppStore } from '../store/store.js'
 import InputBox from './InputBox.jsx'
 import Loader from './Loader.jsx'
@@ -60,6 +61,7 @@ export default function Chat() {
 
   useLayoutEffect(() => {
     const container = document.querySelector('.main-scroll')
+    const container = document.querySelector('.chat-scroll')
     if (!container) return undefined
 
     const frame = window.requestAnimationFrame(() => {
@@ -77,6 +79,8 @@ export default function Chat() {
     <section className="chat-panel">
       <div className="chat-canvas-highlight" aria-hidden="true" />
       <div className="message-stream">
+      {/* Scrollable message area */}
+      <div className="chat-scroll scrollbar-auto">
         <div className="chat-panel__inner">
           <AnimatePresence mode="popLayout">
             {messages.length ? (
@@ -95,13 +99,17 @@ export default function Chat() {
                 key="empty"
                 className="hero"
                 initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
               >
                 <h2 className="hero__title">What would you like to know?</h2>
                 <div className="hero__header">
                   <h2 className="hero__title">What would you like to know?</h2>
+                  <h2 className="hero__title">Search your connected knowledge</h2>
                   <p className="hero__subtitle">
                     Search uploaded documents, query connected SQL schemas, or ask for analysis.
+                    Ask across SQL, documents, or both — LocalMind retrieves structured evidence automatically.
                   </p>
                 </div>
 
@@ -118,34 +126,59 @@ export default function Chat() {
                       Ask questions across your knowledge base. LocalMind automatically retrieves citations, executes verified SQL queries, and surfaces structured evidence.
                     </p>
                   </div>
+                {/* Mode chips */}
+                <div className="hero__modes">
+                  <button type="button" className="hero__mode-chip" onClick={() => navigate('/documents')}>
+                    <FileText size={14} />
+                    <span>Documents</span>
+                  </button>
+                  <button type="button" className="hero__mode-chip hero__mode-chip--active">
+                    <Route size={14} />
+                    <span>Hybrid</span>
+                  </button>
+                  <button type="button" className="hero__mode-chip" onClick={() => handleStarterDraft('Show me the database schema and available tables')}>
+                    <Database size={14} />
+                    <span>SQL</span>
+                  </button>
                 </div>
 
                 <div className="feature-grid">
+                {/* Starter prompts */}
+                <div className="starter-grid">
                   <button
                     type="button"
                     className="feature-card feature-card--action"
                     onClick={() => handleStarterDraft('What kind of documents can I upload?')}
+                    className="starter-prompt"
+                    onClick={() => handleStarterDraft('Show me available products')}
                   >
                     <strong className="feature-card__title">Supported documents</strong>
                     <p className="feature-card__text">See which file types LocalMind can read.</p>
+                    Show me available products
                   </button>
 
                   <button
                     type="button"
                     className="feature-card feature-card--action"
                     onClick={() => navigate('/documents')}
+                    className="starter-prompt"
+                    onClick={() => handleStarterDraft('What documents can I search?')}
                   >
                     <strong className="feature-card__title">Your documents</strong>
                     <p className="feature-card__text">Review uploaded sources before asking.</p>
+                    What documents can I search?
                   </button>
 
                   <button
                     type="button"
                     className="feature-card feature-card--action"
                     onClick={() => handleStarterDraft('Check database status and connected schema')}
+                    className="starter-prompt"
+                    onClick={() => handleStarterDraft('Compare database data with documents')}
                   >
                     <strong className="feature-card__title">Database status</strong>
                     <p className="feature-card__text">Check whether connected data is reachable.</p>
+                    Compare database data with documents
                   </button>
                 </div>
               </motion.div>
@@ -157,6 +190,7 @@ export default function Chat() {
         </div>
       </div>
 
+      {/* Composer — sticky at bottom */}
       <div className="composer">
         <InputBox
           ref={inputRef}

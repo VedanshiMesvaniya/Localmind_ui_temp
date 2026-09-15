@@ -33,9 +33,9 @@ function App() {
         closeButton
         toastOptions={{
           style: {
-            background: 'var(--panel-strong)',
-            color: 'var(--text-primary)',
-            border: '1px solid var(--panel-border)',
+            background: 'var(--color-surface)',
+            color: 'var(--color-text)',
+            border: '1px solid var(--color-border-strong)',
           },
         }}
       />

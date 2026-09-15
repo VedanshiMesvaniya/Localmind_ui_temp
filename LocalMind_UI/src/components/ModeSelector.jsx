@@ -9,6 +9,8 @@ export const MODES = [
     name: 'Auto (Hybrid)',
     tag: 'Smart',
     speed: 'Auto',
+    label: 'Hybrid',
+    description: 'Use SQL + documents',
     icon: Route,
   },
   {
@@ -16,6 +18,8 @@ export const MODES = [
     name: 'SQL Database',
     tag: 'Live ERP',
     speed: 'Fast',
+    label: 'SQL',
+    description: 'Query connected database',
     icon: Database,
   },
   {
@@ -23,6 +27,8 @@ export const MODES = [
     name: 'Documents (RAG)',
     tag: 'Policies',
     speed: 'Docs',
+    label: 'Documents',
+    description: 'Search indexed files',
     icon: FileText,
   },
 ]
@@ -66,13 +72,17 @@ export default function ModeSelector() {
         aria-haspopup="menu"
         aria-expanded={open}
         title="Knowledge Source mode"
+        title="Knowledge source"
       >
         <ActiveIcon size={13} className="mode-chip__icon" />
         <span className="mode-chip__label">{activeMode.name}</span>
+        <span className="mode-chip__label">{activeMode.label}</span>
         {open ? (
           <ChevronUp size={12} className="mode-chip__caret" />
+          <ChevronUp size={11} className="mode-chip__caret" />
         ) : (
           <ChevronDown size={12} className="mode-chip__caret" />
+          <ChevronDown size={11} className="mode-chip__caret" />
         )}
       </button>
 
@@ -82,11 +92,14 @@ export default function ModeSelector() {
             className="mode-pop"
             role="menu"
             initial={{ opacity: 0, y: 4, scale: 0.98 }}
+            initial={{ opacity: 0, y: 4, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.98 }}
+            exit={{ opacity: 0, y: 4, scale: 0.97 }}
             transition={{ duration: 0.12 }}
           >
             <div className="mode-pop__header">Knowledge Source</div>
+            <div className="mode-pop__header">Knowledge source</div>
 
             <div className="mode-pop__list">
               {MODES.map((mode) => {
@@ -108,6 +121,13 @@ export default function ModeSelector() {
                       <Icon size={14} className="mode-pop__row-icon" />
                       <span className="mode-pop__row-name">{mode.name}</span>
                       <span className="mode-pop__row-tag">{mode.tag}</span>
+                      <span className={`mode-pop__radio ${active ? 'mode-pop__radio--active' : ''}`} aria-hidden="true">
+                        {active ? <Check size={10} strokeWidth={3} /> : null}
+                      </span>
+                      <div className="mode-pop__row-text">
+                        <span className="mode-pop__row-name">{mode.label}</span>
+                        <span className="mode-pop__row-desc">{mode.description}</span>
+                      </div>
                     </div>
 
                     <div className="mode-pop__row-right">
@@ -121,6 +141,8 @@ export default function ModeSelector() {
                   </button>
                 )
               })}
+              })
+              }
             </div>
           </motion.div>
         ) : null}
