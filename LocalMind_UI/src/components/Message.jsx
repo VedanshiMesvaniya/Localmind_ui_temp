@@ -444,7 +444,7 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
             </div>
           ) : null}
 
-          {/* Token usage — quiet collapsed line */}
+          {/* Token usage — quiet collapsed line, below the answer and source provenance */}
           {!isStreaming ? <TokenUsage usage={message.usage} /> : null}
 
           {/* Answer actions — shown below content */}
@@ -515,10 +515,6 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
               </button>
             </motion.div>
           )}
-
-          {/* Token cost of this answer — a collapsible footer, mirroring the
-              thinking trace at the top. Self-hides when no usage was captured. */}
-          {!isStreaming ? <TokenUsage usage={message.usage} /> : null}
         </div>
       ) : (
         /* User message */

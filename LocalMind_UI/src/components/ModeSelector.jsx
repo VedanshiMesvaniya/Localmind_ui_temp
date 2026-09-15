@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, ChevronUp, Database, FileText, Route } from 'lucide-react'
+import { Check, Database, FileText, Route } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAppStore } from '../store/store.js'
 
@@ -72,15 +72,10 @@ export default function ModeSelector() {
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={open}
-        title="Knowledge source"
+        aria-label={`Knowledge source: ${activeMode.label}`}
+        title={`Knowledge source: ${activeMode.label}`}
       >
-        <ActiveIcon size={13} className="mode-chip__icon" />
-        <span className="mode-chip__label">{activeMode.label}</span>
-        {open ? (
-          <ChevronUp size={11} className="mode-chip__caret" />
-        ) : (
-          <ChevronDown size={11} className="mode-chip__caret" />
-        )}
+        <ActiveIcon size={17} className="mode-chip__icon" />
       </button>
 
       <AnimatePresence>

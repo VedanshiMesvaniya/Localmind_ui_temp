@@ -173,12 +173,8 @@ export default function Chat() {
           loading={isGenerating}
           disabled={isGenerating}
           cooldown={cooldown}
-          footer={
-            <div className="composer__footer-tools">
-              <ModeSelector />
-              <ProviderStatus />
-            </div>
-          }
+          footer={<ProviderStatus />}
+          modeSlot={<ModeSelector />}
         />
       </div>
     </section>
