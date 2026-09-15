@@ -167,10 +167,9 @@ function splitMessageContent(rawText, sqlPayload) {
 const markdownComponents = {
   pre(props) {
     const { children, ...rest } = props
-    const { children } = props
     const source = mermaidSource(children)
     if (source !== null) return <MermaidDiagram code={source} />
-    return <CodeBlock {...props} />
+    return <CodeBlock {...rest}>{children}</CodeBlock>
   },
   table(props) {
     return <MarkdownTable {...props} />
@@ -338,7 +337,6 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
         className="message message--assistant message--ingestion"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.24, delay: index * 0.03 }}
         transition={{ duration: 0.2, delay: index * 0.03 }}
       >
         <IngestionCard message={message} />
@@ -353,11 +351,9 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
       })}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.24, delay: index * 0.03 }}
       transition={{ duration: 0.2, delay: index * 0.03 }}
     >
       {isLoading ? (
-        <div className="message__assistant message__assistant--loading" aria-live="polite">
         <div className="message__assistant-body message__assistant-body--loading" aria-live="polite">
           {message.thinking?.length ? (
             <ThinkingTrace steps={message.thinking} streaming />
@@ -383,7 +379,6 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
           {message.thinking?.length ? (
             <ThinkingTrace steps={message.thinking} streaming={isStreaming} />
           ) : null}
-          <div className="message__assistant markdown">
 
           {/* Open content — no card border */}
           <div className="message__assistant-body markdown">
@@ -454,39 +449,32 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
 
           {/* Answer actions — shown below content */}
           <div className="message__bottom-bar">
-            <div className="message__actions" aria-label="Assistant actions">
             <div className="message__actions" aria-label="Answer actions">
               <button
                 type="button"
                 className={clsx('message__action', copied && 'message__action--active')}
                 onClick={handleCopy}
                 aria-label="Copy message"
-                title="Copy message"
                 title="Copy"
               >
-                {copied ? <Check size={16} /> : <Copy size={16} />}
                 {copied ? <Check size={15} /> : <Copy size={15} />}
               </button>
               <button
                 type="button"
                 className={clsx('message__action', feedback === 'up' && 'message__action--active')}
                 onClick={() => handleFeedback('up')}
-                aria-label="Thumbs up"
                 aria-label="Good response"
                 title="Good response"
               >
-                <ThumbsUp size={16} />
                 <ThumbsUp size={15} />
               </button>
               <button
                 type="button"
                 className={clsx('message__action', feedback === 'down' && 'message__action--active')}
                 onClick={() => handleFeedback('down')}
-                aria-label="Thumbs down"
                 aria-label="Bad response"
                 title="Bad response"
               >
-                <ThumbsDown size={16} />
                 <ThumbsDown size={15} />
               </button>
             </div>
@@ -499,8 +487,6 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
                 aria-label="Regenerate response"
                 disabled={loading}
               >
-                <RefreshCw size={14} className={loading ? 'spin' : ''} />
-                <span>Regenerate response</span>
                 <RefreshCw size={13} className={loading ? 'spin' : ''} />
                 <span>Regenerate</span>
               </button>

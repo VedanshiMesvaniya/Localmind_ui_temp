@@ -4,31 +4,25 @@ import {
   MoreHorizontal,
   PanelLeftClose,
   PanelLeftOpen,
+  PencilLine,
   Pin,
   PinOff,
   Search,
   Settings,
-  Trash2,
-  PencilLine,
   SquarePen,
+  Trash2,
 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/store.js'
 import { useDialogA11y } from '../utils/useDialogA11y.js'
+import BrandMark from './BrandMark.jsx'
 
 function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
   return (
-    <div
-      className={`chat-item ${isActive ? 'chat-item--active' : ''} ${isMenuOpen ? 'chat-item--menu-open' : ''}`}
-    >
-      <button
-        type="button"
-        className="chat-item__main"
-        onClick={onSelect}
-      >
-        <MessageSquare size={16} className="chat-item__icon" aria-hidden="true" />
+    <div className={`chat-item ${isActive ? 'chat-item--active' : ''} ${isMenuOpen ? 'chat-item--menu-open' : ''}`}>
+      <button type="button" className="chat-item__main" onClick={onSelect}>
         <MessageSquare size={14} className="chat-item__icon" aria-hidden="true" />
         <span className="chat-item__title-window">
           <span className="chat-item__title">{chat.title}</span>
@@ -40,10 +34,9 @@ function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
           type="button"
           className="chat-item__menu-trigger"
           aria-label={`Chat actions for ${chat.title}`}
-          onClick={(e) => onToggleMenu(chat, e)}
+          onClick={(event) => onToggleMenu(chat, event)}
         >
           <MoreHorizontal size={15} />
-          <MoreHorizontal size={14} />
         </button>
       </div>
     </div>
@@ -63,11 +56,11 @@ export default function Sidebar() {
   const sidebarCollapsed = useAppStore((state) => state.sidebarCollapsed)
   const toggleSidebarCollapse = useAppStore((state) => state.toggleSidebarCollapse)
   const closeSidebar = useAppStore((state) => state.closeSidebar)
+  const chatsLoading = useAppStore((state) => state.chatsLoading)
 
   const navigate = useNavigate()
   const location = useLocation()
   const isChatRouteActive = location.pathname === '/' || location.pathname === '/chat'
-  const chatsLoading = useAppStore((state) => state.chatsLoading)
   const [searchQuery, setSearchQuery] = useState('')
   const [openMenuId, setOpenMenuId] = useState(null)
   const [menuPosition, setMenuPosition] = useState(null)
@@ -76,19 +69,22 @@ export default function Sidebar() {
   const dialogInputRef = useRef(null)
   const dialogCancelRef = useRef(null)
 
+  const closeDialog = () => setDialog({ type: null, chat: null, value: '' })
+  const closeMenu = () => {
+    setOpenMenuId(null)
+    setMenuPosition(null)
+  }
+
   useDialogA11y({
     isOpen: Boolean(dialog.type),
-    onClose: () => closeDialog(),
+    onClose: closeDialog,
     containerRef: dialogRef,
     initialFocusRef: dialog.type === 'rename' ? dialogInputRef : dialogCancelRef,
   })
 
   useEffect(() => {
     if (!openMenuId) return undefined
-    const handleViewportChange = () => {
-      setOpenMenuId(null)
-      setMenuPosition(null)
-    }
+    const handleViewportChange = () => closeMenu()
     window.addEventListener('scroll', handleViewportChange, true)
     window.addEventListener('resize', handleViewportChange)
     return () => {
@@ -101,44 +97,36 @@ export default function Sidebar() {
     const query = searchQuery.trim().toLowerCase()
     const pinnedList = []
     const recentList = []
+
     for (const chat of chats) {
-      if (query && !chat.title?.toLowerCase().includes(query)) {
-        continue
-      }
+      if (query && !chat.title?.toLowerCase().includes(query)) continue
       if (pinnedChatIds.has(chat.id)) pinnedList.push(chat)
       else recentList.push(chat)
     }
+
     return { pinned: pinnedList, recent: recentList }
   }, [chats, pinnedChatIds, searchQuery])
-  }, [chats, pinnedChatIds])
 
   const handleNewChat = async () => {
-    setOpenMenuId(null)
-    setMenuPosition(null)
+    closeMenu()
     await newChat()
     navigate('/chat')
   }
 
   const handleRename = (chat) => {
-    setOpenMenuId(null)
-    setMenuPosition(null)
+    closeMenu()
     setDialog({ type: 'rename', chat, value: chat.title })
   }
 
   const handleDelete = (chat) => {
-    setOpenMenuId(null)
-    setMenuPosition(null)
+    closeMenu()
     setDialog({ type: 'delete', chat, value: '' })
   }
 
   const handlePin = (chat) => {
-    setOpenMenuId(null)
-    setMenuPosition(null)
+    closeMenu()
     togglePinChat(chat.id)
   }
-
-  const closeDialog = () => setDialog({ type: null, chat: null, value: '' })
-  const closeMenu = () => { setOpenMenuId(null); setMenuPosition(null) }
 
   const toggleChatMenu = (chat, event) => {
     const triggerRect = event.currentTarget.getBoundingClientRect()
@@ -148,7 +136,12 @@ export default function Sidebar() {
     const viewportHeight = window.innerHeight
     const nextLeft = Math.max(12, Math.min(triggerRect.right - menuWidth, viewportWidth - menuWidth - 12))
     const enoughRoomBelow = triggerRect.bottom + menuHeight + 12 <= viewportHeight
-    if (openMenuId === chat.id) { closeMenu(); return }
+
+    if (openMenuId === chat.id) {
+      closeMenu()
+      return
+    }
+
     setOpenMenuId(chat.id)
     setMenuPosition(
       enoughRoomBelow
@@ -161,7 +154,10 @@ export default function Sidebar() {
     if (!dialog.chat) return
     if (dialog.type === 'rename') {
       const nextTitle = dialog.value.trim()
-      if (!nextTitle || nextTitle === dialog.chat.title) { closeDialog(); return }
+      if (!nextTitle || nextTitle === dialog.chat.title) {
+        closeDialog()
+        return
+      }
       await renameChat(dialog.chat.id, nextTitle)
     }
     if (dialog.type === 'delete') {
@@ -171,7 +167,7 @@ export default function Sidebar() {
     closeDialog()
   }
 
-  const activeMenuChat = chats.find((c) => c.id === openMenuId)
+  const activeMenuChat = chats.find((chat) => chat.id === openMenuId)
   const activeMenuIsPinned = activeMenuChat ? pinnedChatIds.has(activeMenuChat.id) : false
 
   const renderChatList = (list) =>
@@ -191,7 +187,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Collapsed rail for desktop */}
       <aside className="sidebar-rail" aria-label="Collapsed sidebar">
         <button
           type="button"
@@ -213,13 +208,9 @@ export default function Sidebar() {
           <SquarePen size={18} />
         </button>
 
-        <div className="sidebar-rail__spacer" />
-
         <NavLink
           to="/documents"
-          className={({ isActive }) =>
-            `sidebar-rail__btn ${isActive ? 'sidebar-rail__btn--active' : ''}`
-          }
+          className={({ isActive }) => `sidebar-rail__btn ${isActive ? 'sidebar-rail__btn--active' : ''}`}
           title="Documents"
           aria-label="Documents"
         >
@@ -230,9 +221,7 @@ export default function Sidebar() {
 
         <NavLink
           to="/settings"
-          className={({ isActive }) =>
-            `sidebar-rail__btn ${isActive ? 'sidebar-rail__btn--active' : ''}`
-          }
+          className={({ isActive }) => `sidebar-rail__btn ${isActive ? 'sidebar-rail__btn--active' : ''}`}
           title="Settings"
           aria-label="Settings"
         >
@@ -240,14 +229,15 @@ export default function Sidebar() {
         </NavLink>
       </aside>
 
-      {/* Expanded sidebar */}
       <aside className="sidebar" data-open={sidebarOpen} data-collapsed={sidebarCollapsed}>
-
-        {/* Brand */}
         <div className="brand">
           <div className="brand__row">
             <div className="brand__lockup">
-              <h1 className="brand__title">LocalMind</h1>
+              <BrandMark size={20} className="brand__mark" />
+              <div className="brand__type">
+                <h1 className="brand__title">Local Mind</h1>
+                <p className="brand__subtitle">Private data intelligence</p>
+              </div>
             </div>
             <button
               type="button"
@@ -260,7 +250,6 @@ export default function Sidebar() {
           </div>
         </div>
 
-        {/* Search */}
         <div className="sidebar__search-row">
           <Search size={16} className="sidebar__search-icon" aria-hidden="true" />
           <input
@@ -268,21 +257,18 @@ export default function Sidebar() {
             className="sidebar__search-input"
             placeholder="Search conversations..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(event) => setSearchQuery(event.target.value)}
             aria-label="Search conversations"
           />
         </div>
 
-        {/* New chat */}
         <div className="sidebar__new-chat-row">
           <button type="button" className="new-chat-action" onClick={handleNewChat}>
             <SquarePen size={16} />
-            <SquarePen size={15} />
             <span>New chat</span>
           </button>
         </div>
 
-        {/* Documents */}
         <nav className="sidebar__documents-row">
           <NavLink
             to="/documents"
@@ -294,15 +280,13 @@ export default function Sidebar() {
           </NavLink>
         </nav>
 
-        {/* Chat history */}
         <div className="sidebar__scroll scrollbar-auto">
           {chatsLoading ? (
             <section className="sidebar__section sidebar__section--grow">
               <p className="section-title">Recent chats</p>
-              <p className="section-title">Chats</p>
               <div className="chat-list" aria-busy="true" aria-label="Loading chats">
-                {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="chat-item-skeleton" style={{ animationDelay: `${i * 80}ms` }} />
+                {[0, 1, 2, 3].map((index) => (
+                  <div key={index} className="chat-item-skeleton" style={{ animationDelay: `${index * 80}ms` }} />
                 ))}
               </div>
             </section>
@@ -317,11 +301,9 @@ export default function Sidebar() {
 
               <section className="sidebar__section sidebar__section--grow">
                 <p className="section-title">Recent chats</p>
-                <p className="section-title">Chats</p>
                 <div className="chat-list">
                   {recent.length ? renderChatList(recent) : (
                     pinned.length === 0 ? <p className="chat-list__empty">{searchQuery ? 'No matching chats' : 'No chats yet'}</p> : null
-                    pinned.length === 0 ? <p className="chat-list__empty">No chats yet</p> : null
                   )}
                 </div>
               </section>
@@ -329,32 +311,18 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* Settings & Help */}
-        {/* Footer: Documents + Settings */}
         <footer className="sidebar__footer">
-          <p className="section-title">Settings & Help</p>
-          <div className="sidebar__footer-divider" />
-          <NavLink
-            to="/documents"
-            className={({ isActive }) => `nav-item nav-item--footer ${isActive ? 'nav-item--active' : ''}`}
-            onClick={closeSidebar}
-          >
-            <Library size={15} />
-            <span>Documents</span>
-          </NavLink>
           <NavLink
             to="/settings"
             className={({ isActive }) => `nav-item nav-item--footer ${isActive ? 'nav-item--active' : ''}`}
             onClick={closeSidebar}
           >
             <Settings size={16} />
-            <Settings size={15} />
             <span>Settings</span>
           </NavLink>
         </footer>
       </aside>
 
-      {/* Portal for chat menu */}
       {openMenuId && activeMenuChat ? createPortal(
         <div className="chat-menu-backdrop" role="presentation" onClick={closeMenu}>
           <div
@@ -362,24 +330,15 @@ export default function Sidebar() {
             role="menu"
             aria-label="Chat actions"
             style={menuPosition ?? undefined}
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
           >
-            <button
-              type="button"
-              className="chat-menu__item"
-              onClick={() => handlePin(activeMenuChat)}
-              role="menuitem"
-            >
+            <button type="button" className="chat-menu__item" onClick={() => handlePin(activeMenuChat)} role="menuitem">
               {activeMenuIsPinned ? <PinOff size={14} /> : <Pin size={14} />}
               <span>{activeMenuIsPinned ? 'Unpin' : 'Pin'}</span>
             </button>
-            <button
-              type="button"
-              className="chat-menu__item"
-              onClick={() => handleRename(activeMenuChat)}
-              role="menuitem"
-            >
-              <PencilLine size={14} /><span>Rename</span>
+            <button type="button" className="chat-menu__item" onClick={() => handleRename(activeMenuChat)} role="menuitem">
+              <PencilLine size={14} />
+              <span>Rename</span>
             </button>
             <button
               type="button"
@@ -387,11 +346,12 @@ export default function Sidebar() {
               onClick={() => handleDelete(activeMenuChat)}
               role="menuitem"
             >
-              <Trash2 size={14} /><span>Delete</span>
+              <Trash2 size={14} />
+              <span>Delete</span>
             </button>
           </div>
         </div>,
-        document.body
+        document.body,
       ) : null}
 
       {sidebarOpen ? (
@@ -407,7 +367,7 @@ export default function Sidebar() {
             aria-modal="true"
             aria-labelledby="chat-dialog-title"
             aria-describedby="chat-dialog-desc"
-            onClick={(e) => e.stopPropagation()}
+            onClick={(event) => event.stopPropagation()}
           >
             <p className="dialog-card__eyebrow">Chat action</p>
             <h3 id="chat-dialog-title" className="dialog-card__title">
@@ -416,7 +376,6 @@ export default function Sidebar() {
             <p id="chat-dialog-desc" className="dialog-card__text">
               {dialog.type === 'rename'
                 ? 'Give this conversation a new name.'
-                : `This will remove "${dialog.chat?.title}" from recent chats.`}
                 : `This will remove "${dialog.chat?.title}" from your chats.`}
             </p>
             {dialog.type === 'rename' ? (
@@ -424,12 +383,14 @@ export default function Sidebar() {
                 ref={dialogInputRef}
                 className="dialog-card__input"
                 value={dialog.value}
-                onChange={(e) => setDialog((c) => ({ ...c, value: e.target.value }))}
+                onChange={(event) => setDialog((current) => ({ ...current, value: event.target.value }))}
                 placeholder="Chat title"
               />
             ) : null}
             <div className="dialog-card__actions">
-              <button ref={dialogCancelRef} type="button" className="secondary-button" onClick={closeDialog}>Cancel</button>
+              <button ref={dialogCancelRef} type="button" className="secondary-button" onClick={closeDialog}>
+                Cancel
+              </button>
               <button
                 type="button"
                 className={`primary-button ${dialog.type === 'delete' ? 'primary-button--danger' : ''}`}

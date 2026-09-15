@@ -27,7 +27,6 @@ export default function Chat() {
   const prevGeneratingRef = useRef(isGenerating)
 
   useEffect(() => {
-    // When generation completes, trigger 3s rate-protection cooldown
     if (prevGeneratingRef.current && !isGenerating) {
       setCooldown(3)
     }
@@ -35,11 +34,11 @@ export default function Chat() {
   }, [isGenerating])
 
   useEffect(() => {
-    if (cooldown <= 0) return
-    const timer = setTimeout(() => {
+    if (cooldown <= 0) return undefined
+    const timer = window.setTimeout(() => {
       setCooldown((prev) => Math.max(0, prev - 1))
     }, 1000)
-    return () => clearTimeout(timer)
+    return () => window.clearTimeout(timer)
   }, [cooldown])
 
   const messages = useMemo(
@@ -48,8 +47,6 @@ export default function Chat() {
   )
   const lastMessageId = messages[messages.length - 1]?.id
 
-  // Task starters only fill the composer through the existing draft state,
-  // sending still goes through the normal submit flow, nothing new is called.
   const handleStarterDraft = (prompt) => {
     setDraft(activeChatId, prompt)
     inputRef.current?.focus()
@@ -61,7 +58,6 @@ export default function Chat() {
 
   useLayoutEffect(() => {
     const container = document.querySelector('.main-scroll')
-    const container = document.querySelector('.chat-scroll')
     if (!container) return undefined
 
     const frame = window.requestAnimationFrame(() => {
@@ -79,8 +75,6 @@ export default function Chat() {
     <section className="chat-panel">
       <div className="chat-canvas-highlight" aria-hidden="true" />
       <div className="message-stream">
-      {/* Scrollable message area */}
-      <div className="chat-scroll scrollbar-auto">
         <div className="chat-panel__inner">
           <AnimatePresence mode="popLayout">
             {messages.length ? (
@@ -98,35 +92,17 @@ export default function Chat() {
               <motion.div
                 key="empty"
                 className="hero"
-                initial={{ opacity: 0, y: 10 }}
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <h2 className="hero__title">What would you like to know?</h2>
                 <div className="hero__header">
-                  <h2 className="hero__title">What would you like to know?</h2>
                   <h2 className="hero__title">Search your connected knowledge</h2>
                   <p className="hero__subtitle">
-                    Search uploaded documents, query connected SQL schemas, or ask for analysis.
-                    Ask across SQL, documents, or both — LocalMind retrieves structured evidence automatically.
+                    Ask across SQL, documents, or both. LocalMind retrieves structured evidence automatically.
                   </p>
                 </div>
 
-                <div className="hero__preview-card">
-                  <div className="hero__preview-header">
-                    <div className="hero__preview-tabs">
-                      <span className="hero__preview-tab hero__preview-tab--active">SQL & RAG</span>
-                      <span className="hero__preview-tab">DOCUMENTS</span>
-                    </div>
-                    <span className="hero__preview-badge">Workbench</span>
-                  </div>
-                  <div className="hero__preview-body">
-                    <p className="hero__preview-text">
-                      Ask questions across your knowledge base. LocalMind automatically retrieves citations, executes verified SQL queries, and surfaces structured evidence.
-                    </p>
-                  </div>
-                {/* Mode chips */}
                 <div className="hero__modes">
                   <button type="button" className="hero__mode-chip" onClick={() => navigate('/documents')}>
                     <FileText size={14} />
@@ -136,48 +112,36 @@ export default function Chat() {
                     <Route size={14} />
                     <span>Hybrid</span>
                   </button>
-                  <button type="button" className="hero__mode-chip" onClick={() => handleStarterDraft('Show me the database schema and available tables')}>
+                  <button
+                    type="button"
+                    className="hero__mode-chip"
+                    onClick={() => handleStarterDraft('Show me the database schema and available tables')}
+                  >
                     <Database size={14} />
                     <span>SQL</span>
                   </button>
                 </div>
 
-                <div className="feature-grid">
-                {/* Starter prompts */}
                 <div className="starter-grid">
                   <button
                     type="button"
-                    className="feature-card feature-card--action"
-                    onClick={() => handleStarterDraft('What kind of documents can I upload?')}
                     className="starter-prompt"
                     onClick={() => handleStarterDraft('Show me available products')}
                   >
-                    <strong className="feature-card__title">Supported documents</strong>
-                    <p className="feature-card__text">See which file types LocalMind can read.</p>
                     Show me available products
                   </button>
-
                   <button
                     type="button"
-                    className="feature-card feature-card--action"
-                    onClick={() => navigate('/documents')}
                     className="starter-prompt"
                     onClick={() => handleStarterDraft('What documents can I search?')}
                   >
-                    <strong className="feature-card__title">Your documents</strong>
-                    <p className="feature-card__text">Review uploaded sources before asking.</p>
                     What documents can I search?
                   </button>
-
                   <button
                     type="button"
-                    className="feature-card feature-card--action"
-                    onClick={() => handleStarterDraft('Check database status and connected schema')}
                     className="starter-prompt"
                     onClick={() => handleStarterDraft('Compare database data with documents')}
                   >
-                    <strong className="feature-card__title">Database status</strong>
-                    <p className="feature-card__text">Check whether connected data is reachable.</p>
                     Compare database data with documents
                   </button>
                 </div>
@@ -190,7 +154,6 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Composer — sticky at bottom */}
       <div className="composer">
         <InputBox
           ref={inputRef}

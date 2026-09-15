@@ -36,12 +36,14 @@ export const MODES = [
 function useDismiss(ref, onDismiss, active) {
   useEffect(() => {
     if (!active) return undefined
+
     const onPointer = (event) => {
       if (ref.current && !ref.current.contains(event.target)) onDismiss()
     }
     const onKey = (event) => {
       if (event.key === 'Escape') onDismiss()
     }
+
     document.addEventListener('mousedown', onPointer)
     document.addEventListener('keydown', onKey)
     return () => {
@@ -54,13 +56,12 @@ function useDismiss(ref, onDismiss, active) {
 export default function ModeSelector() {
   const searchMode = useAppStore((state) => state.searchMode) || 'auto'
   const setSearchMode = useAppStore((state) => state.setSearchMode)
-
   const [open, setOpen] = useState(false)
   const menuRef = useRef(null)
 
   useDismiss(menuRef, () => setOpen(false), open)
 
-  const activeMode = MODES.find((m) => m.id === searchMode) || MODES[0]
+  const activeMode = MODES.find((mode) => mode.id === searchMode) || MODES[0]
   const ActiveIcon = activeMode.icon
 
   return (
@@ -71,17 +72,13 @@ export default function ModeSelector() {
         onClick={() => setOpen((prev) => !prev)}
         aria-haspopup="menu"
         aria-expanded={open}
-        title="Knowledge Source mode"
         title="Knowledge source"
       >
         <ActiveIcon size={13} className="mode-chip__icon" />
-        <span className="mode-chip__label">{activeMode.name}</span>
         <span className="mode-chip__label">{activeMode.label}</span>
         {open ? (
-          <ChevronUp size={12} className="mode-chip__caret" />
           <ChevronUp size={11} className="mode-chip__caret" />
         ) : (
-          <ChevronDown size={12} className="mode-chip__caret" />
           <ChevronDown size={11} className="mode-chip__caret" />
         )}
       </button>
@@ -91,14 +88,11 @@ export default function ModeSelector() {
           <motion.div
             className="mode-pop"
             role="menu"
-            initial={{ opacity: 0, y: 4, scale: 0.98 }}
             initial={{ opacity: 0, y: 4, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.98 }}
             exit={{ opacity: 0, y: 4, scale: 0.97 }}
             transition={{ duration: 0.12 }}
           >
-            <div className="mode-pop__header">Knowledge Source</div>
             <div className="mode-pop__header">Knowledge source</div>
 
             <div className="mode-pop__list">
@@ -119,11 +113,6 @@ export default function ModeSelector() {
                   >
                     <div className="mode-pop__row-left">
                       <Icon size={14} className="mode-pop__row-icon" />
-                      <span className="mode-pop__row-name">{mode.name}</span>
-                      <span className="mode-pop__row-tag">{mode.tag}</span>
-                      <span className={`mode-pop__radio ${active ? 'mode-pop__radio--active' : ''}`} aria-hidden="true">
-                        {active ? <Check size={10} strokeWidth={3} /> : null}
-                      </span>
                       <div className="mode-pop__row-text">
                         <span className="mode-pop__row-name">{mode.label}</span>
                         <span className="mode-pop__row-desc">{mode.description}</span>
@@ -141,8 +130,6 @@ export default function ModeSelector() {
                   </button>
                 )
               })}
-              })
-              }
             </div>
           </motion.div>
         ) : null}

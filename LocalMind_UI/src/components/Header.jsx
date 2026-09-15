@@ -1,24 +1,23 @@
 import { useEffect, useRef, useState } from 'react'
-import { Download, FileText, FileCheck2, Loader2, Menu, Moon, Sun } from 'lucide-react'
-import { Download, FileText, FileCheck2, Loader2, Menu, ChevronDown, Check } from 'lucide-react'
+import { Check, ChevronDown, Download, FileCheck2, FileText, Loader2, Menu, Moon, Sun } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
+import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { useAppStore } from '../store/store.js'
-import Button from './Button.jsx'
 import { generateChatDocument } from '../services/api.js'
 import { exportChatTranscript, exportProfessionalDocument } from '../utils/pdfExport.js'
-import { AnimatePresence, motion } from 'framer-motion'
 
-// Reusable dismiss hook
 function useDismiss(ref, onDismiss, active) {
   useEffect(() => {
     if (!active) return undefined
+
     const onPointer = (event) => {
       if (ref.current && !ref.current.contains(event.target)) onDismiss()
     }
     const onKey = (event) => {
       if (event.key === 'Escape') onDismiss()
     }
+
     document.addEventListener('mousedown', onPointer)
     document.addEventListener('keydown', onKey)
     return () => {
@@ -28,7 +27,6 @@ function useDismiss(ref, onDismiss, active) {
   }, [ref, onDismiss, active])
 }
 
-// Provider picker extracted here so the header can render it
 function ProviderPicker() {
   const settings = useAppStore((state) => state.settings)
   const providers = useAppStore((state) => state.providers)
@@ -44,7 +42,7 @@ function ProviderPicker() {
   ]
   const options = providers?.length ? providers : fallback
   const activeId = settings?.provider || 'auto'
-  const activeLabel = options.find((o) => o.id === activeId)?.label || (activeId === 'auto' ? 'Auto' : activeId)
+  const activeLabel = options.find((option) => option.id === activeId)?.label || (activeId === 'auto' ? 'Auto' : activeId)
 
   const selectProvider = (id) => {
     updateSettings({ provider: id })
@@ -56,7 +54,7 @@ function ProviderPicker() {
       <button
         type="button"
         className="topbar-btn topbar-btn--provider"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen((value) => !value)}
         aria-haspopup="menu"
         aria-expanded={open}
         title="Change provider"
@@ -109,6 +107,10 @@ export default function Header() {
   const messagesByChatId = useAppStore((state) => state.messagesByChatId)
   const settings = useAppStore((state) => state.settings)
   const updateSettings = useAppStore((state) => state.updateSettings)
+  const [downloadOpen, setDownloadOpen] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const downloadRef = useRef(null)
+
   const isChatRoute = location.pathname === '/' || location.pathname === '/chat'
   const activeChat = chats.find((chat) => chat.id === activeChatId)
   const messages = messagesByChatId[activeChatId] || []
@@ -116,31 +118,18 @@ export default function Header() {
     (message) => message != null && message.status !== 'loading' && message.kind !== 'ingestion',
   )
   const canExport = Boolean(activeChat) && exportableMessages.length > 0
-
   const currentTheme = settings?.theme || 'dark'
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [downloadOpen, setDownloadOpen] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const menuRef = useRef(null)
-  const downloadRef = useRef(null)
+  const pageTitle = isChatRoute
+    ? (activeChat?.title || 'LocalMind')
+    : location.pathname.slice(1).charAt(0).toUpperCase() + location.pathname.slice(2)
 
-  useEffect(() => {
-    if (!menuOpen) return undefined
-    const onClick = (e) => {
-      if (menuRef.current && !menuRef.current.contains(e.target)) setMenuOpen(false)
-    }
-    window.addEventListener('mousedown', onClick)
-    return () => window.removeEventListener('mousedown', onClick)
-  }, [menuOpen])
   useDismiss(downloadRef, () => setDownloadOpen(false), downloadOpen)
 
   const toggleTheme = () => {
-    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark'
-    updateSettings({ theme: nextTheme })
+    updateSettings({ theme: currentTheme === 'dark' ? 'light' : 'dark' })
   }
 
   const handleTranscript = async () => {
-    setMenuOpen(false)
     setDownloadOpen(false)
     if (!canExport) return
     try {
@@ -152,7 +141,6 @@ export default function Header() {
   }
 
   const handleProfessional = async () => {
-    setMenuOpen(false)
     setDownloadOpen(false)
     if (!canExport || busy) return
     setBusy(true)
@@ -168,34 +156,24 @@ export default function Header() {
     }
   }
 
-  const pageTitle = isChatRoute
-    ? (activeChat?.title || 'LocalMind')
-    : location.pathname.slice(1).charAt(0).toUpperCase() + location.pathname.slice(2)
-
   return (
     <header className="header">
       <div className="header__left">
-        <Button
         <button
           type="button"
-          variant="secondary"
           className="icon-button mobile-toggle"
           onClick={toggleSidebar}
           aria-label="Open navigation"
         >
           <Menu size={18} />
-        </Button>
         </button>
 
         <div className="header__chat-identity">
-          <h1 className="header__chat-title">
-            {isChatRoute ? (activeChat?.title || 'Messaging app') : location.pathname.slice(1).charAt(0).toUpperCase() + location.pathname.slice(2)}
-          </h1>
           <h1 className="header__chat-title">{pageTitle}</h1>
         </div>
       </div>
 
-      <div className="header__actions" ref={menuRef}>
+      <div className="header__actions">
         <button
           type="button"
           className="icon-button header__action-btn"
@@ -206,29 +184,15 @@ export default function Header() {
           {currentTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
-      <div className="header__actions">
         {isChatRoute ? (
           <>
-            <button
-              className="icon-button header__export-trigger"
-              type="button"
-              aria-label="Export as PDF"
-              aria-haspopup="menu"
-              aria-expanded={menuOpen}
-              onClick={() => setMenuOpen((v) => !v)}
-              disabled={!canExport || busy}
-              title="Export conversation"
-            >
-              {busy ? <Loader2 size={18} className="spin" /> : <Download size={18} />}
-            </button>
-            {/* Download menu */}
             <div className="topbar-download" ref={downloadRef}>
               <button
                 type="button"
                 className="topbar-btn"
                 aria-haspopup="menu"
                 aria-expanded={downloadOpen}
-                onClick={() => setDownloadOpen((v) => !v)}
+                onClick={() => setDownloadOpen((value) => !value)}
                 disabled={!canExport || busy}
                 title="Download conversation"
               >
@@ -237,24 +201,6 @@ export default function Header() {
                 <ChevronDown size={13} />
               </button>
 
-            {menuOpen ? (
-              <div className="export-menu export-menu--left" role="menu">
-                <button type="button" className="export-menu__item" role="menuitem" onClick={handleTranscript}>
-                  <FileText size={16} />
-                  <span>
-                    <strong>Chat transcript</strong>
-                    <em>The conversation, formatted with charts</em>
-                  </span>
-                </button>
-                <button type="button" className="export-menu__item" role="menuitem" onClick={handleProfessional}>
-                  <FileCheck2 size={16} />
-                  <span>
-                    <strong>Professional document</strong>
-                    <em>A polished report generated from this chat, charts added</em>
-                  </span>
-                </button>
-              </div>
-            ) : null}
               <AnimatePresence>
                 {downloadOpen ? (
                   <motion.div
@@ -286,7 +232,6 @@ export default function Header() {
               </AnimatePresence>
             </div>
 
-            {/* Provider picker */}
             <ProviderPicker />
           </>
         ) : null}

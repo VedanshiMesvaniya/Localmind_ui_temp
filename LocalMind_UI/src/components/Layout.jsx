@@ -53,12 +53,9 @@ export function Layout() {
       <main className="content">
         <Header />
         <div className="main-scroll">
-          <div className="surface">
+          <div className="workspace">
             <Outlet />
           </div>
-        {/* Single workspace — no surface wrapper, no nested card */}
-        <div className="workspace">
-          <Outlet />
         </div>
       </main>
     </div>
