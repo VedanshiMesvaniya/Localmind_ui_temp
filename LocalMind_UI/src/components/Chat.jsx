@@ -75,6 +75,7 @@ export default function Chat() {
 
   return (
     <section className="chat-panel">
+      <div className="chat-canvas-highlight" aria-hidden="true" />
       <div className="message-stream">
         <div className="chat-panel__inner">
           <AnimatePresence mode="popLayout">
@@ -96,33 +97,37 @@ export default function Chat() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
               >
-                <h2 className="hero__title">Ask about your documents or data</h2>
+                <h2 className="hero__title">What would you like to know?</h2>
+                <div className="hero__header">
+                  <h2 className="hero__title">What would you like to know?</h2>
+                  <p className="hero__subtitle">
+                    Search uploaded documents, query connected SQL schemas, or ask for analysis.
+                  </p>
+                </div>
+
+                <div className="hero__preview-card">
+                  <div className="hero__preview-header">
+                    <div className="hero__preview-tabs">
+                      <span className="hero__preview-tab hero__preview-tab--active">SQL & RAG</span>
+                      <span className="hero__preview-tab">DOCUMENTS</span>
+                    </div>
+                    <span className="hero__preview-badge">Workbench</span>
+                  </div>
+                  <div className="hero__preview-body">
+                    <p className="hero__preview-text">
+                      Ask questions across your knowledge base. LocalMind automatically retrieves citations, executes verified SQL queries, and surfaces structured evidence.
+                    </p>
+                  </div>
+                </div>
+
                 <div className="feature-grid">
                   <button
                     type="button"
                     className="feature-card feature-card--action"
-                    onClick={() => handleStarterDraft('Search the knowledge base for ')}
+                    onClick={() => handleStarterDraft('What kind of documents can I upload?')}
                   >
-                    <strong className="feature-card__title">Search the knowledge base</strong>
-                    <p className="feature-card__text">Find an answer across uploaded documents.</p>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="feature-card feature-card--action"
-                    onClick={() => handleStarterDraft('Query connected data for ')}
-                  >
-                    <strong className="feature-card__title">Query connected data</strong>
-                    <p className="feature-card__text">Ask for counts, totals, trends, or comparisons.</p>
-                  </button>
-
-                  <button
-                    type="button"
-                    className="feature-card feature-card--action"
-                    onClick={() => handleStarterDraft('Trace the sources behind the answer to ')}
-                  >
-                    <strong className="feature-card__title">Trace an answer</strong>
-                    <p className="feature-card__text">See which documents or database records support it.</p>
+                    <strong className="feature-card__title">Supported documents</strong>
+                    <p className="feature-card__text">See which file types LocalMind can read.</p>
                   </button>
 
                   <button
@@ -130,8 +135,17 @@ export default function Chat() {
                     className="feature-card feature-card--action"
                     onClick={() => navigate('/documents')}
                   >
-                    <strong className="feature-card__title">Open Documents</strong>
-                    <p className="feature-card__text">Upload or inspect the source material.</p>
+                    <strong className="feature-card__title">Your documents</strong>
+                    <p className="feature-card__text">Review uploaded sources before asking.</p>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="feature-card feature-card--action"
+                    onClick={() => handleStarterDraft('Check database status and connected schema')}
+                  >
+                    <strong className="feature-card__title">Database status</strong>
+                    <p className="feature-card__text">Check whether connected data is reachable.</p>
                   </button>
                 </div>
               </motion.div>

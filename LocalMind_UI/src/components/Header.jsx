@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Download, FileText, FileCheck2, Loader2, Menu } from 'lucide-react'
+import { Download, FileText, FileCheck2, Loader2, Menu, Moon, Sun } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAppStore } from '../store/store.js'
@@ -13,6 +13,8 @@ export default function Header() {
   const activeChatId = useAppStore((state) => state.activeChatId)
   const chats = useAppStore((state) => state.chats)
   const messagesByChatId = useAppStore((state) => state.messagesByChatId)
+  const settings = useAppStore((state) => state.settings)
+  const updateSettings = useAppStore((state) => state.updateSettings)
   const isChatRoute = location.pathname === '/' || location.pathname === '/chat'
   const activeChat = chats.find((chat) => chat.id === activeChatId)
   const messages = messagesByChatId[activeChatId] || []
@@ -21,6 +23,7 @@ export default function Header() {
   )
   const canExport = Boolean(activeChat) && exportableMessages.length > 0
 
+  const currentTheme = settings?.theme || 'dark'
   const [menuOpen, setMenuOpen] = useState(false)
   const [busy, setBusy] = useState(false)
   const menuRef = useRef(null)
@@ -33,6 +36,11 @@ export default function Header() {
     window.addEventListener('mousedown', onClick)
     return () => window.removeEventListener('mousedown', onClick)
   }, [menuOpen])
+
+  const toggleTheme = () => {
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark'
+    updateSettings({ theme: nextTheme })
+  }
 
   const handleTranscript = async () => {
     setMenuOpen(false)
@@ -74,48 +82,60 @@ export default function Header() {
           <Menu size={18} />
         </Button>
 
-        {isChatRoute ? (
-          <div className="header__chat-identity">
-            <span className="header__chat-title">{activeChat?.title || 'New chat'}</span>
-          </div>
-        ) : null}
+        <div className="header__chat-identity">
+          <h1 className="header__chat-title">
+            {isChatRoute ? (activeChat?.title || 'Messaging app') : location.pathname.slice(1).charAt(0).toUpperCase() + location.pathname.slice(2)}
+          </h1>
+        </div>
       </div>
 
-      {/* Export button pinned to the RIGHT corner of the header */}
-      {isChatRoute ? (
-        <div className="header__actions" ref={menuRef}>
-          <button
-            className="icon-button header__export-trigger"
-            type="button"
-            aria-label="Export as PDF"
-            aria-haspopup="menu"
-            aria-expanded={menuOpen}
-            onClick={() => setMenuOpen((v) => !v)}
-            disabled={!canExport || busy}
-          >
-            {busy ? <Loader2 size={16} className="spin" /> : <Download size={16} />}
-          </button>
+      <div className="header__actions" ref={menuRef}>
+        <button
+          type="button"
+          className="icon-button header__action-btn"
+          onClick={toggleTheme}
+          title={`Switch to ${currentTheme === 'dark' ? 'light' : 'dark'} mode`}
+          aria-label="Toggle theme"
+        >
+          {currentTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        </button>
 
-          {menuOpen ? (
-            <div className="export-menu export-menu--left" role="menu">
-              <button type="button" className="export-menu__item" role="menuitem" onClick={handleTranscript}>
-                <FileText size={16} />
-                <span>
-                  <strong>Chat transcript</strong>
-                  <em>The conversation, formatted with charts</em>
-                </span>
-              </button>
-              <button type="button" className="export-menu__item" role="menuitem" onClick={handleProfessional}>
-                <FileCheck2 size={16} />
-                <span>
-                  <strong>Professional document</strong>
-                  <em>A polished report generated from this chat, charts added</em>
-                </span>
-              </button>
-            </div>
-          ) : null}
-        </div>
-      ) : null}
+        {isChatRoute ? (
+          <>
+            <button
+              className="icon-button header__export-trigger"
+              type="button"
+              aria-label="Export as PDF"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((v) => !v)}
+              disabled={!canExport || busy}
+              title="Export conversation"
+            >
+              {busy ? <Loader2 size={18} className="spin" /> : <Download size={18} />}
+            </button>
+
+            {menuOpen ? (
+              <div className="export-menu export-menu--left" role="menu">
+                <button type="button" className="export-menu__item" role="menuitem" onClick={handleTranscript}>
+                  <FileText size={16} />
+                  <span>
+                    <strong>Chat transcript</strong>
+                    <em>The conversation, formatted with charts</em>
+                  </span>
+                </button>
+                <button type="button" className="export-menu__item" role="menuitem" onClick={handleProfessional}>
+                  <FileCheck2 size={16} />
+                  <span>
+                    <strong>Professional document</strong>
+                    <em>A polished report generated from this chat, charts added</em>
+                  </span>
+                </button>
+              </div>
+            ) : null}
+          </>
+        ) : null}
+      </div>
     </header>
   )
 }

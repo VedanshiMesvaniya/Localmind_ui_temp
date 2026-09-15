@@ -6,7 +6,7 @@ const themeMap = {
 }
 
 export function resolveTheme(theme) {
-  return themeMap[theme] || themeMap.light
+  return themeMap[theme] || themeMap.dark
 }
 
 const DARK_QUERY = '(prefers-color-scheme: dark)'

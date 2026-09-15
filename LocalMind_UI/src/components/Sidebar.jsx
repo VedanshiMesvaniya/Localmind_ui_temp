@@ -6,6 +6,7 @@ import {
   PanelLeftOpen,
   Pin,
   PinOff,
+  Search,
   Settings,
   Trash2,
   PencilLine,
@@ -16,7 +17,6 @@ import { createPortal } from 'react-dom'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/store.js'
 import { useDialogA11y } from '../utils/useDialogA11y.js'
-import BrandMark from './BrandMark.jsx'
 
 function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
   return (
@@ -28,7 +28,7 @@ function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
         className="chat-item__main"
         onClick={onSelect}
       >
-        <MessageSquare size={14} className="chat-item__icon" aria-hidden="true" />
+        <MessageSquare size={16} className="chat-item__icon" aria-hidden="true" />
         <span className="chat-item__title-window">
           <span className="chat-item__title">{chat.title}</span>
         </span>
@@ -48,7 +48,6 @@ function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
   )
 }
 
-
 export default function Sidebar() {
   const chats = useAppStore((state) => state.chats)
   const activeChatId = useAppStore((state) => state.activeChatId)
@@ -65,8 +64,9 @@ export default function Sidebar() {
 
   const navigate = useNavigate()
   const location = useLocation()
-  const isChatRouteActive = location.pathname === '/chat'
+  const isChatRouteActive = location.pathname === '/' || location.pathname === '/chat'
   const chatsLoading = useAppStore((state) => state.chatsLoading)
+  const [searchQuery, setSearchQuery] = useState('')
   const [openMenuId, setOpenMenuId] = useState(null)
   const [menuPosition, setMenuPosition] = useState(null)
   const [dialog, setDialog] = useState({ type: null, chat: null, value: '' })
@@ -96,14 +96,18 @@ export default function Sidebar() {
   }, [openMenuId])
 
   const { pinned, recent } = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase()
     const pinnedList = []
     const recentList = []
     for (const chat of chats) {
+      if (query && !chat.title?.toLowerCase().includes(query)) {
+        continue
+      }
       if (pinnedChatIds.has(chat.id)) pinnedList.push(chat)
       else recentList.push(chat)
     }
     return { pinned: pinnedList, recent: recentList }
-  }, [chats, pinnedChatIds])
+  }, [chats, pinnedChatIds, searchQuery])
 
   const handleNewChat = async () => {
     setOpenMenuId(null)
@@ -234,15 +238,11 @@ export default function Sidebar() {
       {/* Expanded sidebar */}
       <aside className="sidebar" data-open={sidebarOpen} data-collapsed={sidebarCollapsed}>
 
-        {/* Brand — fixed, compact lockup: mark + name + tagline */}
+        {/* Brand */}
         <div className="brand">
           <div className="brand__row">
             <div className="brand__lockup">
-              <BrandMark size={20} className="brand__mark" />
-              <div className="brand__type">
-                <h1 className="brand__title">Local Mind</h1>
-                <p className="brand__subtitle">Private data intelligence</p>
-              </div>
+              <h1 className="brand__title">LocalMind</h1>
             </div>
             <button
               type="button"
@@ -255,6 +255,19 @@ export default function Sidebar() {
           </div>
         </div>
 
+        {/* Search */}
+        <div className="sidebar__search-row">
+          <Search size={16} className="sidebar__search-icon" aria-hidden="true" />
+          <input
+            type="text"
+            className="sidebar__search-input"
+            placeholder="Search conversations..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search conversations"
+          />
+        </div>
+
         {/* New chat */}
         <div className="sidebar__new-chat-row">
           <button type="button" className="new-chat-action" onClick={handleNewChat}>
@@ -263,8 +276,7 @@ export default function Sidebar() {
           </button>
         </div>
 
-        {/* Documents — a permanent library, not a chat. Ingestion happens
-            entirely on that page; nothing here spawns a conversation. */}
+        {/* Documents */}
         <nav className="sidebar__documents-row">
           <NavLink
             to="/documents"
@@ -299,7 +311,7 @@ export default function Sidebar() {
                 <p className="section-title">Recent chats</p>
                 <div className="chat-list">
                   {recent.length ? renderChatList(recent) : (
-                    pinned.length === 0 ? <p className="chat-list__empty">No chats yet</p> : null
+                    pinned.length === 0 ? <p className="chat-list__empty">{searchQuery ? 'No matching chats' : 'No chats yet'}</p> : null
                   )}
                 </div>
               </section>
@@ -307,8 +319,9 @@ export default function Sidebar() {
           )}
         </div>
 
-        {/* Footer — Settings only */}
+        {/* Settings & Help */}
         <footer className="sidebar__footer">
+          <p className="section-title">Settings & Help</p>
           <NavLink
             to="/settings"
             className={({ isActive }) => `nav-item nav-item--footer ${isActive ? 'nav-item--active' : ''}`}

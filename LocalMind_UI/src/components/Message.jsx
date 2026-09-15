@@ -24,6 +24,7 @@ import ThinkingTrace from './ThinkingTrace.jsx'
 import TokenUsage from './TokenUsage.jsx'
 import rehypeCitations from './rehypeCitations.js'
 import DatabaseResultCard from './DatabaseResultCard.jsx'
+import CodeBlock from './CodeBlock.jsx'
 
 /** Recursively flatten a react-markdown children tree back into plain text.
  * rehype-highlight can split code into nested <span> tokens, so a simple
@@ -160,13 +161,14 @@ function splitMessageContent(rawText, sqlPayload) {
 }
 
 // Custom renderers for assistant markdown: mermaid code blocks become diagrams,
-// everything else falls through to the default <pre>.
+// code blocks become styled CodeBlock with tabs and Copy button,
+// tables become MarkdownTable.
 const markdownComponents = {
   pre(props) {
     const { children, ...rest } = props
     const source = mermaidSource(children)
     if (source !== null) return <MermaidDiagram code={source} />
-    return <pre {...rest}>{children}</pre>
+    return <CodeBlock {...props} />
   },
   table(props) {
     return <MarkdownTable {...props} />
@@ -425,40 +427,47 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
               </button>
             </div>
           ) : null}
-          <div className="message__actions" aria-label="Assistant actions">
-            <button
-              type="button"
-              className={clsx('message__action', copied && 'message__action--active')}
-              onClick={handleCopy}
-              aria-label="Copy message"
-            >
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-            </button>
-            <button
-              type="button"
-              className={clsx('message__action', feedback === 'up' && 'message__action--active')}
-              onClick={() => handleFeedback('up')}
-              aria-label="Thumbs up"
-            >
-              <ThumbsUp size={14} />
-            </button>
-            <button
-              type="button"
-              className={clsx('message__action', feedback === 'down' && 'message__action--active')}
-              onClick={() => handleFeedback('down')}
-              aria-label="Thumbs down"
-            >
-              <ThumbsDown size={14} />
-            </button>
+          <div className="message__bottom-bar">
+            <div className="message__actions" aria-label="Assistant actions">
+              <button
+                type="button"
+                className={clsx('message__action', copied && 'message__action--active')}
+                onClick={handleCopy}
+                aria-label="Copy message"
+                title="Copy message"
+              >
+                {copied ? <Check size={16} /> : <Copy size={16} />}
+              </button>
+              <button
+                type="button"
+                className={clsx('message__action', feedback === 'up' && 'message__action--active')}
+                onClick={() => handleFeedback('up')}
+                aria-label="Thumbs up"
+                title="Good response"
+              >
+                <ThumbsUp size={16} />
+              </button>
+              <button
+                type="button"
+                className={clsx('message__action', feedback === 'down' && 'message__action--active')}
+                onClick={() => handleFeedback('down')}
+                aria-label="Thumbs down"
+                title="Bad response"
+              >
+                <ThumbsDown size={16} />
+              </button>
+            </div>
+
             {canRegenerate ? (
               <button
                 type="button"
-                className="message__action"
+                className="regenerate-button"
                 onClick={() => regenerateMessage(chatId, message.id)}
-                aria-label="Regenerate reply"
+                aria-label="Regenerate response"
                 disabled={loading}
               >
-                <RefreshCw size={14} />
+                <RefreshCw size={14} className={loading ? 'spin' : ''} />
+                <span>Regenerate response</span>
               </button>
             ) : null}
           </div>
