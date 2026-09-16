@@ -1,9 +1,11 @@
 import { motion } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   Check,
+  ChevronDown,
   ChevronLeft,
   ChevronRight,
+  ChevronUp,
   Copy,
   PencilLine,
   RefreshCw,
@@ -227,6 +229,9 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
   const [copied, setCopied] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState(message.content || '')
+  const [expanded, setExpanded] = useState(false)
+  const [canExpand, setCanExpand] = useState(false)
+  const bubbleRef = useRef(null)
   
 
   const submitFeedbackComment = useAppStore((state) => state.submitFeedbackComment)
@@ -279,6 +284,17 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
     },
     [],
   )
+
+  useLayoutEffect(() => {
+    if (isAssistant || isEditing) return
+    const node = bubbleRef.current
+    if (!node) return
+    setExpanded(false)
+    const frame = window.requestAnimationFrame(() => {
+      setCanExpand(node.scrollHeight - node.clientHeight > 4)
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [isAssistant, isEditing, message.content])
 
   useEffect(() => {
     if (!chatId || !message.isNew || isTyping) return
@@ -444,10 +460,10 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
             </div>
           ) : null}
 
-          {/* Token usage — quiet collapsed line, below the answer and source provenance */}
+          {/* Token usage — part of the same response card, below the answer */}
           {!isStreaming ? <TokenUsage usage={message.usage} /> : null}
 
-          {/* Answer actions — shown below content */}
+          {/* Answer actions — four icon-only actions, left side, shown on hover */}
           <div className="message__bottom-bar">
             <div className="message__actions" aria-label="Answer actions">
               <button
@@ -477,20 +493,19 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
               >
                 <ThumbsDown size={15} />
               </button>
+              {canRegenerate ? (
+                <button
+                  type="button"
+                  className="message__action"
+                  onClick={() => regenerateMessage(chatId, message.id)}
+                  aria-label="Regenerate response"
+                  title="Regenerate"
+                  disabled={loading}
+                >
+                  <RefreshCw size={15} className={loading ? 'spin' : ''} />
+                </button>
+              ) : null}
             </div>
-
-            {canRegenerate ? (
-              <button
-                type="button"
-                className="regenerate-button"
-                onClick={() => regenerateMessage(chatId, message.id)}
-                aria-label="Regenerate response"
-                disabled={loading}
-              >
-                <RefreshCw size={13} className={loading ? 'spin' : ''} />
-                <span>Regenerate</span>
-              </button>
-            ) : null}
           </div>
           
 
@@ -558,7 +573,10 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
             </div>
           ) : (
             <>
-              <div className="message__bubble markdown">
+              <div
+                ref={bubbleRef}
+                className={clsx('message__bubble', 'markdown', !expanded && canExpand && 'message__bubble--clamped')}
+              >
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[[rehypeHighlight, { ignoreMissing: true }], rehypeCitations]}
@@ -566,6 +584,16 @@ export default function Message({ message, index = 0, chatId, isLast = false, ha
                   {message.content}
                 </ReactMarkdown>
               </div>
+              {canExpand ? (
+                <button
+                  type="button"
+                  className="message__show-more"
+                  onClick={() => setExpanded((value) => !value)}
+                >
+                  <span>{expanded ? 'Show less' : 'Show more'}</span>
+                  {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                </button>
+              ) : null}
               <div className="message__actions message__actions--user">
                 <button
                   type="button"
