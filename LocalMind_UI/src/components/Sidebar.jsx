@@ -16,7 +16,6 @@ import { createPortal } from 'react-dom'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAppStore } from '../store/store.js'
 import { useDialogA11y } from '../utils/useDialogA11y.js'
-import BrandMark from './BrandMark.jsx'
 
 function ChatItemRow({ chat, isActive, isMenuOpen, onSelect, onToggleMenu }) {
   return (
@@ -229,7 +228,6 @@ export default function Sidebar() {
         <div className="brand">
           <div className="brand__row">
             <div className="brand__lockup">
-              <BrandMark size={20} className="brand__mark" />
               <div className="brand__type">
                 <h1 className="brand__title">Local Mind</h1>
                 <p className="brand__subtitle">Private data intelligence</p>

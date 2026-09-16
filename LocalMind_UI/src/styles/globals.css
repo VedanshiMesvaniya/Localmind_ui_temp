@@ -175,11 +175,11 @@ button:disabled { cursor: not-allowed; }
   align-items: center;
 }
 .brand__row { justify-content: space-between; gap: 8px; }
-.brand__lockup { gap: 10px; min-width: 0; }
+.brand__lockup { gap: 0; min-width: 0; }
 .brand__type { min-width: 0; }
-.brand__title { margin: 0; font-size: 17px; font-weight: 700; color: var(--color-text); }
+.brand__title { margin: 0; font-size: 19px; line-height: 1.05; font-weight: 700; color: var(--color-text); }
 .brand__subtitle { margin: 1px 0 0; font-size: var(--text-xs); color: var(--color-text-muted); white-space: nowrap; }
-.brand__mark { color: var(--accent); flex-shrink: 0; }
+.brand__mark { width: 34px; height: 34px; border-radius: 9px; object-fit: contain; flex-shrink: 0; }
 
 .new-chat-action,
 .primary-button,
