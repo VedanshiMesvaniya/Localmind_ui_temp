@@ -44,8 +44,8 @@ const InputBox = forwardRef(function InputBox(
           event.preventDefault()
           if (canSubmit) onSubmit?.()
         }}
-        minRows={1}
-        maxRows={5}
+        minRows={2}
+        maxRows={2}
         disabled={isBlocked}
       />
       <div className="composer__footer">

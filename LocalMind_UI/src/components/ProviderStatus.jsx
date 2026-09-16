@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Binary, Check, ChevronDown, Gauge, RotateCw, SendHorizontal } from 'lucide-react'
+import { Binary, Check, ChevronDown, Gauge, RotateCw, SendHorizontal, Sparkles } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useAppStore } from '../store/store.js'
 
@@ -156,6 +156,7 @@ export default function ProviderStatus() {
           aria-expanded={pickerOpen}
           title="Change provider"
         >
+          <Sparkles size={13} className="provider-status__chip-icon" />
           <span className="provider-status__name">{activeLabel}</span>
           <ChevronDown size={13} className="provider-status__caret" />
         </button>
@@ -208,6 +209,7 @@ export default function ProviderStatus() {
           title="Provider telemetry and bottlenecks"
         >
           <span className="provider-status__dot-core" />
+          <Gauge size={13} className="provider-status__meter-icon" />
           <span className="provider-status__dot-label">{healthLabel}</span>
         </button>
 
