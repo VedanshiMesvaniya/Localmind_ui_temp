@@ -26,7 +26,7 @@ function meter(used, limit) {
   const capacity = Number(limit) || 0
   const consumed = Number(used) || 0
   const pct = capacity > 0 ? Math.min(100, Math.round((consumed / capacity) * 100)) : 0
-  const level = pct >= 90 ? 'crit' : pct >= 70 ? 'warn' : 'ok'
+  const level = capacity <= 0 ? 'none' : pct >= 90 ? 'crit' : pct >= 60 ? 'warn' : 'ok'
   return { pct, level, consumed, capacity }
 }
 
@@ -48,17 +48,64 @@ function summarize(usage) {
   let level = 'ok'
   let cooling = false
   let highest = null
+  let hasData = false
 
   for (const p of usage || []) {
     if (Number(p.backoffSeconds) > 0) cooling = true
     const bm = calculateBottleneck(p)
+    if (bm.level !== 'none') hasData = true
     if (!highest || bm.pct > highest.pct) {
       highest = { ...bm, provider: p.label || p.id }
     }
     if (bm.level === 'crit') level = 'crit'
     else if (bm.level === 'warn' && level !== 'crit') level = 'warn'
   }
+  if (!hasData) level = 'none'
   return { level, cooling, highest }
+}
+
+// Small circular usage ring — mirrors Claude's own quota indicator. Colour only,
+// no number: green while healthy, yellow from 60%, red from 90%, and a plain
+// gray ring when there's no usage data for the provider yet.
+function UsageRing({ pct, level, size = 16 }) {
+  const strokeWidth = 2.5
+  const radius = (size - strokeWidth) / 2
+  const circumference = 2 * Math.PI * radius
+  const dash = Math.max(0, Math.min(100, pct)) / 100 * circumference
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      className={`usage-ring usage-ring--${level}`}
+      aria-hidden="true"
+    >
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        fill="none"
+        stroke="currentColor"
+        strokeOpacity="0.25"
+        strokeWidth={strokeWidth}
+      />
+      {level !== 'none' ? (
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeDasharray={circumference}
+          strokeDashoffset={circumference - dash}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+      ) : null}
+    </svg>
+  )
 }
 
 const fallbackProviders = [
@@ -124,7 +171,9 @@ export default function ProviderStatus() {
       ? 'Critical'
       : level === 'warn'
         ? 'Warning'
-        : 'Healthy'
+        : level === 'none'
+          ? 'No usage yet'
+          : 'Healthy'
 
   const handleRefresh = async () => {
     if (isRefreshing) return
@@ -192,13 +241,11 @@ export default function ProviderStatus() {
         </AnimatePresence>
       </div>
 
-      {/* Quota dot — click to reveal live telemetry & bottleneck smart cards. */}
+      {/* Quota ring — click to reveal live telemetry & bottleneck smart cards. */}
       <div className="provider-status__usage" ref={usageRef}>
         <button
           type="button"
-          className={`provider-status__dot provider-status__dot--${level} ${
-            cooling ? 'provider-status__dot--cooling' : ''
-          }`}
+          className="provider-status__ring-btn"
           onClick={() => {
             setUsageOpen((v) => !v)
             setPickerOpen(false)
@@ -206,11 +253,9 @@ export default function ProviderStatus() {
           aria-haspopup="dialog"
           aria-expanded={usageOpen}
           aria-label={`Show provider telemetry. ${healthLabel}`}
-          title="Provider telemetry and bottlenecks"
+          title={`Provider usage: ${healthLabel}${highest && level !== 'none' ? ` (${highest.pct}%)` : ''}`}
         >
-          <span className="provider-status__dot-core" />
-          <Gauge size={13} className="provider-status__meter-icon" />
-          <span className="provider-status__dot-label">{healthLabel}</span>
+          <UsageRing pct={highest?.pct ?? 0} level={level} />
         </button>
 
         <AnimatePresence>
@@ -235,7 +280,7 @@ export default function ProviderStatus() {
                   <span className={`telemetry-health-chip telemetry-health-chip--${level}`}>
                     {cooling ? (
                       'Cooling Down'
-                    ) : highest && highest.pct >= 70 ? (
+                    ) : highest && highest.pct >= 60 ? (
                       `${highest.provider} (${highest.pct}%)`
                     ) : (
                       `${visibleUsage.length} Providers Healthy`
@@ -287,7 +332,7 @@ export default function ProviderStatus() {
                               <span className="status-pill status-pill--crit">
                                 {bottleneck.pct}% {bottleneck.label}
                               </span>
-                            ) : bottleneck.pct >= 70 ? (
+                            ) : bottleneck.pct >= 60 ? (
                               <span className="status-pill status-pill--warn">
                                 {bottleneck.pct}% Load
                               </span>
