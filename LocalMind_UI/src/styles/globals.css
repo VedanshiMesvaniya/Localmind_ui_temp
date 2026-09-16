@@ -482,7 +482,6 @@ button:disabled { cursor: not-allowed; }
 .composer__send:active:not(:disabled),
 .composer__stop:active { transform: scale(0.96); }
 .composer__send:disabled { opacity: 0.4; cursor: not-allowed; }
-.composer__stop { background: var(--color-danger); }
 .composer__cooldown {
   min-width: 40px;
   height: 40px;
@@ -739,12 +738,10 @@ button:disabled { cursor: not-allowed; }
 .mode-pop__row-right { display: flex; align-items: center; gap: 8px; }
 .mode-pop__row-speed { color: var(--color-text-muted); font-size: var(--text-xs); }
 
-/* Provider status — lives in the composer footer. Picker chip (left) plus a
-   quota dot (right) that opens a telemetry popover. Kept compact so it never
-   competes with the textarea above it. */
+/* Provider status — lives in the composer footer. Just the picker chip; quota
+   is shown per-provider inside the dropdown, not as a separate composer icon. */
 .provider-status { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.provider-status__picker,
-.provider-status__usage { position: relative; }
+.provider-status__picker { position: relative; }
 .provider-status__chip {
   display: inline-flex;
   align-items: center;
@@ -762,19 +759,6 @@ button:disabled { cursor: not-allowed; }
 .provider-status__chip-icon { flex-shrink: 0; color: var(--accent); }
 .provider-status__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .provider-status__caret { flex-shrink: 0; color: var(--color-text-muted); }
-.provider-status__ring-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--color-text-muted);
-  flex-shrink: 0;
-}
-.provider-status__ring-btn:hover { background: var(--color-control); }
 .usage-ring--ok { color: var(--color-success); }
 .usage-ring--warn { color: var(--color-warning); }
 .usage-ring--crit { color: var(--color-danger); }
@@ -790,7 +774,7 @@ button:disabled { cursor: not-allowed; }
   background: var(--color-surface);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
-.provider-pop--picker { min-width: 180px; padding: 6px; display: grid; gap: 2px; }
+.provider-pop--picker { min-width: 200px; padding: 6px; display: grid; gap: 2px; }
 .provider-pop__item {
   width: 100%;
   display: flex;
@@ -807,109 +791,26 @@ button:disabled { cursor: not-allowed; }
 .provider-pop__item:hover { background: var(--color-control); }
 .provider-pop__item--active { background: var(--accent-soft); color: var(--color-text); }
 .provider-pop__item-label { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
-
-.provider-pop--usage { width: min(320px, calc(100vw - 48px)); padding: 12px; display: grid; gap: 10px; }
-.provider-pop__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.provider-pop__title-group { display: grid; gap: 4px; min-width: 0; }
-.provider-pop__title { display: flex; align-items: center; gap: 6px; font-size: var(--text-sm); font-weight: 700; }
-.provider-pop__title-icon { color: var(--color-text-muted); }
-.telemetry-health-chip {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  background: var(--accent-soft);
-  color: var(--color-text);
-}
-.telemetry-health-chip--warn { background: rgba(251, 191, 36, 0.18); color: var(--color-warning); }
-.telemetry-health-chip--crit { background: rgba(248, 113, 113, 0.18); color: var(--color-danger); }
-.telemetry-health-chip--none { background: var(--color-control); color: var(--color-text-muted); }
-.usage-refresh {
-  width: 26px;
-  height: 26px;
+.provider-pop__radio {
+  width: 14px;
+  height: 14px;
   flex-shrink: 0;
-  border: 1px solid var(--color-border);
   border-radius: 50%;
+  border: 1.5px solid var(--color-border-strong);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-control);
-  color: var(--color-text-soft);
 }
-.usage-refresh:hover { background: var(--color-control-hover); color: var(--color-text); }
-.usage-refresh--spinning svg { animation: spin 1s linear infinite; }
-.usage-empty { margin: 0; color: var(--color-text-muted); font-size: var(--text-sm); }
-.provider-pop__list { display: grid; gap: 10px; max-height: 340px; overflow-y: auto; }
-
-.smart-card {
-  display: grid;
-  gap: 8px;
-  padding: 10px;
-  border-radius: var(--radius-control);
-  border: 1px solid var(--color-border);
-  background: var(--color-control);
+.provider-pop__radio--active {
+  border-color: var(--accent);
 }
-.smart-card--warn { border-color: rgba(251, 191, 36, 0.35); }
-.smart-card--crit,
-.smart-card--cooling { border-color: rgba(248, 113, 113, 0.35); }
-.smart-card__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
-.smart-card__title-row { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.smart-card__name { font-weight: 700; font-size: var(--text-sm); }
-.smart-card__model-badge {
-  padding: 1px 6px;
-  border-radius: var(--radius-pill);
-  background: var(--color-code);
-  color: var(--color-text-muted);
-  font-size: 10px;
-  font-family: var(--font-mono);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 120px;
-}
-.smart-card__role { color: var(--color-text-muted); font-size: var(--text-xs); }
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  font-size: var(--text-xs);
-  font-weight: 600;
-  white-space: nowrap;
-}
-.status-pill--ok { background: rgba(52, 211, 153, 0.16); color: var(--color-success); }
-.status-pill--warn { background: rgba(251, 191, 36, 0.16); color: var(--color-warning); }
-.status-pill--crit,
-.status-pill--cooling { background: rgba(248, 113, 113, 0.16); color: var(--color-danger); }
-.status-pill__dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-.smart-bottleneck { display: grid; gap: 6px; }
-.smart-bottleneck__meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: var(--text-xs); color: var(--color-text-muted); }
-.smart-bottleneck__count { font-family: var(--font-mono); color: var(--color-text-soft); }
-.smart-bottleneck__pct { color: var(--color-text-muted); }
-.smart-track { height: 4px; border-radius: var(--radius-pill); background: var(--color-border); overflow: hidden; }
-.smart-fill { height: 100%; width: 100%; transform-origin: left; border-radius: var(--radius-pill); background: var(--accent); }
-.smart-fill--warn { background: var(--color-warning); }
-.smart-fill--crit { background: var(--color-danger); }
-.smart-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.smart-pill { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.smart-pill__icon {
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
+.provider-pop__radio--active::after {
+  content: '';
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-code);
-  color: var(--color-text-muted);
+  background: var(--accent);
 }
-.smart-pill__data { display: grid; min-width: 0; }
-.smart-pill__title { font-size: 10px; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-.smart-pill__values { font-family: var(--font-mono); font-size: var(--text-xs); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 @media (max-width: 480px) {
   .provider-status__chip { max-width: 96px; }
