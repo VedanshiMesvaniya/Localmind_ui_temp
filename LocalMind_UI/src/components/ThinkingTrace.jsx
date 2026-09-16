@@ -1,4 +1,4 @@
-import { Brain, ChevronDown } from 'lucide-react'
+import { Brain, Check, ChevronDown, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -46,9 +46,21 @@ export default function ThinkingTrace({ steps = [], streaming = false }) {
                   key={`${step.label}-${index}`}
                   className={`thinking__step ${isDone ? 'thinking__step--done' : 'thinking__step--active'}`}
                 >
-                  <span className="thinking__step-marker" aria-hidden="true">
-                    {isDone ? 'done' : 'active'}
-                  </span>
+                  {isDone ? (
+                    <Check
+                      size={13}
+                      strokeWidth={1.5}
+                      className="thinking__step-marker thinking__step-marker--done"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <X
+                      size={13}
+                      strokeWidth={1.5}
+                      className="thinking__step-marker thinking__step-marker--fail"
+                      aria-hidden="true"
+                    />
+                  )}
                   <span className="thinking__step-label">{step.label}</span>
                   {step.detail ? (
                     <span className="thinking__step-detail">{step.detail}</span>
