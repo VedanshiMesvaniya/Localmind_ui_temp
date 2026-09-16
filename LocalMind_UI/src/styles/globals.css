@@ -634,8 +634,7 @@ button:disabled { cursor: not-allowed; }
   .message__bottom-bar { opacity: 1; }
 }
 .message__feedback,
-.token__details,
-.thinking__steps {
+.token__details {
   border-radius: var(--radius-card);
   border: 1px solid var(--color-border);
   background: var(--color-control);
@@ -691,8 +690,12 @@ button:disabled { cursor: not-allowed; }
 .ingest-card__chevron--open { transform: rotate(180deg); }
 .thinking__steps,
 .token__details { margin: 0; padding: 10px; display: grid; gap: 8px; }
+.thinking__steps { padding: 4px 2px 2px; background: transparent; }
 .thinking__step,
 .token__row { display: flex; align-items: center; gap: 8px; color: var(--color-text-soft); }
+.thinking__step-marker { flex-shrink: 0; }
+.thinking__step-marker--done { color: var(--color-text-muted); }
+.thinking__step-marker--fail { color: var(--color-danger); }
 .thinking__step-detail,
 .token__row-hint,
 .token__meta { color: var(--color-text-muted); font-size: var(--text-xs); }
