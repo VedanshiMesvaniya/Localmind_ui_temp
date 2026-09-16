@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Download, FileCheck2, FileText, Loader2, Menu } from 'lucide-react'
+import { Check, ChevronDown, Download, FileCheck2, FileText, Loader2 } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
@@ -101,7 +101,6 @@ function ProviderPicker() {
 
 export default function Header() {
   const location = useLocation()
-  const toggleSidebar = useAppStore((state) => state.toggleSidebar)
   const activeChatId = useAppStore((state) => state.activeChatId)
   const chats = useAppStore((state) => state.chats)
   const messagesByChatId = useAppStore((state) => state.messagesByChatId)
@@ -152,15 +151,6 @@ export default function Header() {
   return (
     <header className="header">
       <div className="header__left">
-        <button
-          type="button"
-          className="icon-button mobile-toggle"
-          onClick={toggleSidebar}
-          aria-label="Open navigation"
-        >
-          <Menu size={18} />
-        </button>
-
         <div className="header__chat-identity">
           <h1 className="header__chat-title">{pageTitle}</h1>
         </div>
