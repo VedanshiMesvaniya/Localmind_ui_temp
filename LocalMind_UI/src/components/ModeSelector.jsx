@@ -75,7 +75,8 @@ export default function ModeSelector() {
         aria-label={`Knowledge source: ${activeMode.label}`}
         title={`Knowledge source: ${activeMode.label}`}
       >
-        <ActiveIcon size={17} className="mode-chip__icon" />
+        <ActiveIcon size={13} className="mode-chip__icon" />
+        <span className="mode-chip__label">{activeMode.label}</span>
       </button>
 
       <AnimatePresence>

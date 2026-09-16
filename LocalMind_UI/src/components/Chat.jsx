@@ -173,8 +173,12 @@ export default function Chat() {
           loading={isGenerating}
           disabled={isGenerating}
           cooldown={cooldown}
-          footer={<ProviderStatus />}
-          modeSlot={<ModeSelector />}
+          footer={
+            <>
+              <ProviderStatus />
+              <ModeSelector />
+            </>
+          }
         />
       </div>
     </section>
