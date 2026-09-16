@@ -1,4 +1,4 @@
-import { Brain, Check, ChevronDown, X } from 'lucide-react'
+import { Brain, Check, ChevronDown, Loader2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 
@@ -40,24 +40,34 @@ export default function ThinkingTrace({ steps = [], streaming = false }) {
           >
             {steps.map((step, index) => {
               const isLast = index === steps.length - 1
-              const isDone = !streaming || !isLast
+              const isFailed = step.status === 'error' || Boolean(step.error)
+              const isProcessing = streaming && isLast && !isFailed
               return (
                 <li
                   key={`${step.label}-${index}`}
-                  className={`thinking__step ${isDone ? 'thinking__step--done' : 'thinking__step--active'}`}
+                  className={`thinking__step ${
+                    isFailed ? 'thinking__step--fail' : isProcessing ? 'thinking__step--active' : 'thinking__step--done'
+                  }`}
                 >
-                  {isDone ? (
-                    <Check
-                      size={13}
-                      strokeWidth={1.5}
-                      className="thinking__step-marker thinking__step-marker--done"
-                      aria-hidden="true"
-                    />
-                  ) : (
+                  {isFailed ? (
                     <X
                       size={13}
                       strokeWidth={1.5}
                       className="thinking__step-marker thinking__step-marker--fail"
+                      aria-hidden="true"
+                    />
+                  ) : isProcessing ? (
+                    <Loader2
+                      size={13}
+                      strokeWidth={1.5}
+                      className="thinking__step-marker thinking__step-marker--processing spin"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <Check
+                      size={13}
+                      strokeWidth={1.5}
+                      className="thinking__step-marker thinking__step-marker--done"
                       aria-hidden="true"
                     />
                   )}

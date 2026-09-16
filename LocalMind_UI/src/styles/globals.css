@@ -694,6 +694,7 @@ button:disabled { cursor: not-allowed; }
 .token__row { display: flex; align-items: center; gap: 8px; color: var(--color-text-soft); }
 .thinking__step-marker { flex-shrink: 0; }
 .thinking__step-marker--done { color: var(--color-text-muted); }
+.thinking__step-marker--processing { color: var(--accent); }
 .thinking__step-marker--fail { color: var(--color-danger); }
 .thinking__step-detail,
 .token__row-hint,
@@ -791,26 +792,6 @@ button:disabled { cursor: not-allowed; }
 .provider-pop__item:hover { background: var(--color-control); }
 .provider-pop__item--active { background: var(--accent-soft); color: var(--color-text); }
 .provider-pop__item-label { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
-.provider-pop__radio {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 1.5px solid var(--color-border-strong);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-.provider-pop__radio--active {
-  border-color: var(--accent);
-}
-.provider-pop__radio--active::after {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-}
 
 @media (max-width: 480px) {
   .provider-status__chip { max-width: 96px; }
