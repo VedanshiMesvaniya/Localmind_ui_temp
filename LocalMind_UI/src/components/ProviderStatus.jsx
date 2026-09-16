@@ -151,8 +151,7 @@ export default function ProviderStatus() {
               {options.map((option) => {
                 const active = option.id === activeId
                 const ownUsage = (providerUsage || []).find((p) => p.id === option.id)
-                const ownBottleneck = ownUsage ? calculateBottleneck(ownUsage) : null
-                const hasUsage = ownBottleneck && ownBottleneck.level !== 'none'
+                const ownBottleneck = ownUsage ? calculateBottleneck(ownUsage) : { pct: 0, level: 'none' }
                 return (
                   <button
                     key={option.id}
@@ -163,15 +162,9 @@ export default function ProviderStatus() {
                     onClick={() => selectProvider(option.id)}
                   >
                     <span className="provider-pop__item-label">
-                      {hasUsage ? (
-                        <UsageRing pct={ownBottleneck.pct} level={ownBottleneck.level} size={10} />
-                      ) : null}
                       <span>{option.label}</span>
                     </span>
-                    <span
-                      className={`provider-pop__radio ${active ? 'provider-pop__radio--active' : ''}`}
-                      aria-hidden="true"
-                    />
+                    <UsageRing pct={ownBottleneck.pct} level={ownBottleneck.level} size={14} />
                   </button>
                 )
               })}
