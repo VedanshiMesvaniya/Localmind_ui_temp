@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, ChevronDown, Download, FileCheck2, FileText, Loader2 } from 'lucide-react'
+import { Download, FileCheck2, FileText, Loader2 } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
@@ -25,78 +25,6 @@ function useDismiss(ref, onDismiss, active) {
       document.removeEventListener('keydown', onKey)
     }
   }, [ref, onDismiss, active])
-}
-
-function ProviderPicker() {
-  const settings = useAppStore((state) => state.settings)
-  const providers = useAppStore((state) => state.providers)
-  const updateSettings = useAppStore((state) => state.updateSettings)
-  const [open, setOpen] = useState(false)
-  const ref = useRef(null)
-
-  useDismiss(ref, () => setOpen(false), open)
-
-  const fallback = [
-    { id: 'auto', label: 'Auto' },
-    { id: 'openrouter', label: 'OpenRouter' },
-  ]
-  const options = providers?.length ? providers : fallback
-  const activeId = settings?.provider || 'auto'
-  const activeLabel = options.find((option) => option.id === activeId)?.label || (activeId === 'auto' ? 'Auto' : activeId)
-
-  const selectProvider = (id) => {
-    updateSettings({ provider: id })
-    setOpen(false)
-  }
-
-  return (
-    <div className="topbar-provider" ref={ref}>
-      <button
-        type="button"
-        className="topbar-btn topbar-btn--provider"
-        onClick={() => setOpen((value) => !value)}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        title="Change provider"
-      >
-        <span className="topbar-btn__dot" aria-hidden="true" />
-        <span>{activeLabel}</span>
-        <ChevronDown size={13} />
-      </button>
-
-      <AnimatePresence>
-        {open ? (
-          <motion.div
-            className="topbar-menu topbar-menu--provider"
-            role="menu"
-            aria-label="Select provider"
-            initial={{ opacity: 0, y: 6, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.97 }}
-            transition={{ duration: 0.12 }}
-          >
-            <p className="topbar-menu__header">Provider</p>
-            {options.map((option) => {
-              const active = option.id === activeId
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  role="menuitemradio"
-                  aria-checked={active}
-                  className={`topbar-menu__item ${active ? 'topbar-menu__item--active' : ''}`}
-                  onClick={() => selectProvider(option.id)}
-                >
-                  <span>{option.label}</span>
-                  {active ? <Check size={13} /> : null}
-                </button>
-              )
-            })}
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-    </div>
-  )
 }
 
 export default function Header() {
@@ -203,8 +131,6 @@ export default function Header() {
                 ) : null}
               </AnimatePresence>
             </div>
-
-            <ProviderPicker />
           </>
         ) : null}
       </div>
