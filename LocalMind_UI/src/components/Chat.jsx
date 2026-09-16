@@ -1,7 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { Database, FileText, Route } from 'lucide-react'
 import { useAppStore } from '../store/store.js'
 import InputBox from './InputBox.jsx'
 import Loader from './Loader.jsx'
@@ -19,7 +17,6 @@ export default function Chat() {
   const activeRequest = useAppStore((state) => state.activeRequest)
   const loading = useAppStore((state) => state.loading)
   const value = draftsByChatId[activeChatId || '__pending__'] || ''
-  const navigate = useNavigate()
   const inputRef = useRef(null)
   const bottomRef = useRef(null)
   const isGenerating = Boolean(activeRequest)
@@ -96,32 +93,6 @@ export default function Chat() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="hero__header">
-                  <h2 className="hero__title">Search your connected knowledge</h2>
-                  <p className="hero__subtitle">
-                    Ask across SQL, documents, or both. LocalMind retrieves structured evidence automatically.
-                  </p>
-                </div>
-
-                <div className="hero__modes">
-                  <button type="button" className="hero__mode-chip" onClick={() => navigate('/documents')}>
-                    <FileText size={14} />
-                    <span>Documents</span>
-                  </button>
-                  <button type="button" className="hero__mode-chip hero__mode-chip--active">
-                    <Route size={14} />
-                    <span>Hybrid</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="hero__mode-chip"
-                    onClick={() => handleStarterDraft('Show me the database schema and available tables')}
-                  >
-                    <Database size={14} />
-                    <span>SQL</span>
-                  </button>
-                </div>
-
                 <div className="starter-grid">
                   <button
                     type="button"
