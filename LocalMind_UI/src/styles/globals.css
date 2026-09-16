@@ -11,9 +11,7 @@
   --color-control: rgba(255, 255, 255, 0.06);
   --color-control-hover: rgba(255, 255, 255, 0.10);
   --color-code: #1E2533;
-  --canvas-bg:
-    radial-gradient(circle at 65% 100%, rgba(84, 93, 241, 0.42), transparent 32%),
-    linear-gradient(180deg, #2B2A38 0%, #28263A 58%, #302D54 100%);
+  --canvas-bg: var(--color-bg);
   --color-border: rgba(255, 255, 255, 0.08);
   --color-border-strong: rgba(255, 255, 255, 0.14);
   --color-text: #FFFFFF;
@@ -24,7 +22,7 @@
   --color-danger: #F87171;
   --color-danger-hover: #DC4B4B;
   --shadow: 0 16px 48px rgba(0, 0, 0, 0.30);
-  --shadow-accent: 0 8px 24px rgba(84, 93, 241, 0.35);
+  --shadow-accent: 0 8px 20px rgba(0, 0, 0, 0.35);
   --radius-shell: 22px;
   --radius-card: 16px;
   --radius-control: 10px;
@@ -64,8 +62,8 @@
   --color-text: #1C1C24;
   --color-text-soft: #4A4D62;
   --color-text-muted: #7A7C93;
-  --shadow: 0 16px 48px rgba(84, 93, 241, 0.08);
-  --shadow-accent: 0 8px 24px rgba(84, 93, 241, 0.25);
+  --shadow: 0 16px 48px rgba(28, 28, 36, 0.10);
+  --shadow-accent: 0 8px 20px rgba(28, 28, 36, 0.14);
   --composer-bg: #FFFFFF;
   --placeholder: rgba(122, 124, 147, 0.70);
 }
@@ -432,7 +430,6 @@ button:disabled { cursor: not-allowed; }
 }
 .composer__shell:focus-within {
   border-color: var(--accent);
-  box-shadow: var(--shadow), 0 0 0 3px var(--accent-soft);
 }
 .composer__input {
   width: 100%;
