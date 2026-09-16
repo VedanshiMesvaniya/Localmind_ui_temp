@@ -148,10 +148,10 @@ export default function ProviderStatus() {
   useDismiss(pickerRef, () => setPickerOpen(false), pickerOpen)
   useDismiss(usageRef, () => setUsageOpen(false), usageOpen)
 
-  // Pull fresh quota numbers whenever the usage popover is opened
+  // Pull fresh quota numbers whenever either popover is opened
   useEffect(() => {
-    if (usageOpen) refreshProviderUsage()
-  }, [usageOpen, refreshProviderUsage])
+    if (usageOpen || pickerOpen) refreshProviderUsage()
+  }, [usageOpen, pickerOpen, refreshProviderUsage])
 
   const options = providers?.length ? providers : fallbackProviders
   const activeId = settings?.provider || 'auto'
@@ -222,6 +222,9 @@ export default function ProviderStatus() {
             >
               {options.map((option) => {
                 const active = option.id === activeId
+                const ownUsage = (providerUsage || []).find((p) => p.id === option.id)
+                const ownBottleneck = ownUsage ? calculateBottleneck(ownUsage) : null
+                const hasUsage = ownBottleneck && ownBottleneck.level !== 'none'
                 return (
                   <button
                     key={option.id}
@@ -231,7 +234,12 @@ export default function ProviderStatus() {
                     className={`provider-pop__item ${active ? 'provider-pop__item--active' : ''}`}
                     onClick={() => selectProvider(option.id)}
                   >
-                    <span>{option.label}</span>
+                    <span className="provider-pop__item-label">
+                      {hasUsage ? (
+                        <UsageRing pct={ownBottleneck.pct} level={ownBottleneck.level} size={10} />
+                      ) : null}
+                      <span>{option.label}</span>
+                    </span>
                     {active ? <Check size={13} /> : null}
                   </button>
                 )

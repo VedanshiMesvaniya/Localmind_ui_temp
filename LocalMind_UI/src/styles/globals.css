@@ -806,6 +806,7 @@ button:disabled { cursor: not-allowed; }
 }
 .provider-pop__item:hover { background: var(--color-control); }
 .provider-pop__item--active { background: var(--accent-soft); color: var(--color-text); }
+.provider-pop__item-label { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
 
 .provider-pop--usage { width: min(320px, calc(100vw - 48px)); padding: 12px; display: grid; gap: 10px; }
 .provider-pop__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
