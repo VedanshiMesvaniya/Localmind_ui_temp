@@ -162,16 +162,15 @@ export default function Header() {
             <div className="topbar-download" ref={downloadRef}>
               <button
                 type="button"
-                className="topbar-btn"
+                className="topbar-btn topbar-btn--icon-only"
                 aria-haspopup="menu"
                 aria-expanded={downloadOpen}
+                aria-label="Download conversation"
                 onClick={() => setDownloadOpen((value) => !value)}
                 disabled={!canExport || busy}
                 title="Download conversation"
               >
                 {busy ? <Loader2 size={15} className="spin" /> : <Download size={15} />}
-                <span>Download</span>
-                <ChevronDown size={13} />
               </button>
 
               <AnimatePresence>
