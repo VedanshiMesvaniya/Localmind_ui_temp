@@ -93,27 +93,31 @@ export default function Chat() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <div className="starter-grid">
+                <h2 className="hero__title">What would you like to know?</h2>
+                <div className="hero__cards">
                   <button
                     type="button"
-                    className="starter-prompt"
-                    onClick={() => handleStarterDraft('Show me available products')}
+                    className="hero__card"
+                    onClick={() => handleStarterDraft('What file formats can I upload?')}
                   >
-                    Show me available products
+                    <span className="hero__card-title">Supported Formats</span>
+                    <span className="hero__card-question">What file formats can I upload?</span>
                   </button>
                   <button
                     type="button"
-                    className="starter-prompt"
-                    onClick={() => handleStarterDraft('What documents can I search?')}
+                    className="hero__card"
+                    onClick={() => handleStarterDraft('How do you make sure your answers are accurate?')}
                   >
-                    What documents can I search?
+                    <span className="hero__card-title">Trusted Answers</span>
+                    <span className="hero__card-question">How do you make sure your answers are accurate?</span>
                   </button>
                   <button
                     type="button"
-                    className="starter-prompt"
-                    onClick={() => handleStarterDraft('Compare database data with documents')}
+                    className="hero__card"
+                    onClick={() => handleStarterDraft('How do I quickly find something in my documents?')}
                   >
-                    Compare database data with documents
+                    <span className="hero__card-title">Instant Search</span>
+                    <span className="hero__card-question">How do I quickly find something in my documents?</span>
                   </button>
                 </div>
               </motion.div>
