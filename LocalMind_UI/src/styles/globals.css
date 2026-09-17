@@ -390,18 +390,27 @@ button:disabled { cursor: not-allowed; }
   gap: 18px;
   text-align: center;
 }
-.starter-prompt {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--color-border);
-  background: var(--color-control);
-  color: var(--color-text-soft);
+.hero__title { margin: 0; font-size: clamp(24px, 3.4vw, 34px); font-weight: 700; }
+.hero__cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  width: min(100%, 760px);
 }
-.starter-grid { display: flex; flex-direction: column; gap: 8px; width: min(100%, 480px); }
-.starter-prompt { min-height: 44px; padding: 0 18px; text-align: left; }
-.starter-prompt:hover { background: var(--color-control-hover); color: var(--color-text); }
+.hero__card {
+  flex: 1 1 200px;
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  text-align: left;
+}
+.hero__card:hover { background: var(--color-control); border-color: var(--color-border-strong); }
+.hero__card-title { font-weight: 600; color: var(--color-text); }
+.hero__card-question { color: var(--color-text-muted); font-size: var(--text-sm); line-height: 1.4; }
 .composer {
   position: sticky;
   bottom: 20px;
