@@ -7,6 +7,12 @@ import Message from './Message.jsx'
 import ModeSelector from './ModeSelector.jsx'
 import ProviderStatus from './ProviderStatus.jsx'
 
+// The Supported Formats starter card doesn't need a real DB/document search —
+// this fixed answer is used instead when the user sends this exact question.
+const FORMATS_QUESTION = 'What file formats can I upload?'
+const FORMATS_ANSWER =
+  'I can read and search across these file formats: PDF, DOCX, PPTX, Excel, CSV, MD, TXT.'
+
 export default function Chat() {
   const activeChatId = useAppStore((state) => state.activeChatId)
   const messagesByChatId = useAppStore((state) => state.messagesByChatId)
@@ -99,15 +105,9 @@ export default function Chat() {
                   <button
                     type="button"
                     className="hero__card"
-                    onClick={() =>
-                      sendCannedPrompt(
-                        'What file formats can I upload?',
-                        'I can read and search across these file formats: PDF, DOCX, PPTX, Excel, CSV, MD, TXT.',
-                      )
-                    }
+                    onClick={() => handleStarterDraft(FORMATS_QUESTION)}
                   >
-                    <span className="hero__card-title">Supported Formats</span>
-                    <span className="hero__card-question">What file formats can I upload?</span>
+                    <span className="hero__card-question">{FORMATS_QUESTION}</span>
                   </button>
                   <button
                     type="button"
@@ -142,7 +142,11 @@ export default function Chat() {
             if (isGenerating) return
             const prompt = value.trim()
             if (!prompt) return
-            await sendPrompt(prompt)
+            if (prompt === FORMATS_QUESTION) {
+              await sendCannedPrompt(FORMATS_QUESTION, FORMATS_ANSWER)
+            } else {
+              await sendPrompt(prompt)
+            }
             inputRef.current?.focus()
           }}
           onStop={() => {
