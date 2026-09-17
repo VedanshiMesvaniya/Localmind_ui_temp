@@ -13,6 +13,7 @@ export default function Chat() {
   const draftsByChatId = useAppStore((state) => state.draftsByChatId)
   const setDraft = useAppStore((state) => state.setDraft)
   const sendPrompt = useAppStore((state) => state.sendPrompt)
+  const sendCannedPrompt = useAppStore((state) => state.sendCannedPrompt)
   const stopGeneration = useAppStore((state) => state.stopGeneration)
   const activeRequest = useAppStore((state) => state.activeRequest)
   const loading = useAppStore((state) => state.loading)
@@ -98,7 +99,12 @@ export default function Chat() {
                   <button
                     type="button"
                     className="hero__card"
-                    onClick={() => handleStarterDraft('What file formats can I upload?')}
+                    onClick={() =>
+                      sendCannedPrompt(
+                        'What file formats can I upload?',
+                        'I can read and search across these file formats: PDF, DOCX, PPTX, Excel, CSV, MD, TXT.',
+                      )
+                    }
                   >
                     <span className="hero__card-title">Supported Formats</span>
                     <span className="hero__card-question">What file formats can I upload?</span>
@@ -106,18 +112,16 @@ export default function Chat() {
                   <button
                     type="button"
                     className="hero__card"
-                    onClick={() => handleStarterDraft('How do you make sure your answers are accurate?')}
+                    onClick={() => handleStarterDraft('Show me available products')}
                   >
-                    <span className="hero__card-title">Trusted Answers</span>
-                    <span className="hero__card-question">How do you make sure your answers are accurate?</span>
+                    <span className="hero__card-question">Show me available products</span>
                   </button>
                   <button
                     type="button"
                     className="hero__card"
-                    onClick={() => handleStarterDraft('How do I quickly find something in my documents?')}
+                    onClick={() => handleStarterDraft('What documents can I search?')}
                   >
-                    <span className="hero__card-title">Instant Search</span>
-                    <span className="hero__card-question">How do I quickly find something in my documents?</span>
+                    <span className="hero__card-question">What documents can I search?</span>
                   </button>
                 </div>
               </motion.div>
