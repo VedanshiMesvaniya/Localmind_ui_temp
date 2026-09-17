@@ -409,9 +409,7 @@ button:disabled { cursor: not-allowed; }
   text-align: left;
 }
 .hero__card:hover { background: var(--color-control); border-color: var(--color-border-strong); }
-.hero__card-title { font-weight: 600; color: var(--color-text); }
-.hero__card-question { color: var(--color-text-muted); font-size: var(--text-sm); line-height: 1.4; }
-.hero__card-question:only-child { color: var(--color-text); font-size: var(--text-md); font-weight: 500; }
+.hero__card-question { color: var(--color-text); font-size: var(--text-md); font-weight: 500; line-height: 1.4; }
 .composer {
   position: sticky;
   bottom: 20px;
