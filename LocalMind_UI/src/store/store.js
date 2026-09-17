@@ -705,6 +705,80 @@ export const useAppStore = create((set, get) => ({
     get().finalizeChatTitle(activeChatId)
   },
 
+  // For starter-card answers that don't need a real DB/document search (e.g.
+  // "what file formats do you support"). Skips the backend entirely, but
+  // still shows the user message, a brief loading state, and then reveals
+  // the given answer with the same typewriter effect as any other answer —
+  // so it reads exactly like a normal generated response.
+  sendCannedPrompt: async (question, answer) => {
+    let { activeChatId, pendingChat } = get()
+    if (get().activeRequest) return
+
+    if (pendingChat || !activeChatId) {
+      const chat = await createChat('New Chat')
+      const pendingDraft = get().draftsByChatId['__pending__']
+      set((state) => {
+        const nextDrafts = { ...state.draftsByChatId }
+        delete nextDrafts['__pending__']
+        if (pendingDraft) nextDrafts[chat.id] = pendingDraft
+        return {
+          chats: [{ ...chat, title: 'New Chat', isUntitled: true }, ...normalizeList(state.chats, [])],
+          activeChatId: chat.id,
+          pendingChat: false,
+          messagesByChatId: { ...state.messagesByChatId, [chat.id]: [] },
+          draftsByChatId: nextDrafts,
+        }
+      })
+      activeChatId = chat.id
+    }
+    if (!activeChatId) return
+
+    const requestId = ++requestSequence
+    const placeholder = createLoadingAssistantMessage(requestId)
+    const userMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: question,
+      createdAt: new Date().toISOString(),
+    }
+
+    set((state) => ({
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [activeChatId]: [...(state.messagesByChatId[activeChatId] || []), userMessage, placeholder],
+      },
+      draftsByChatId: { ...state.draftsByChatId, [activeChatId]: '' },
+      activeRequest: { id: requestId, chatId: activeChatId, placeholderId: placeholder.id },
+      loading: true,
+    }))
+
+    const activeChat = get().chats.find((chat) => chat.id === activeChatId)
+    if (activeChat?.isUntitled) {
+      set((state) => ({
+        chats: state.chats.map((chat) =>
+          chat.id === activeChatId ? { ...chat, title: buildUntitledChatTitle(question) } : chat,
+        ),
+      }))
+    }
+
+    // Brief pause so it still feels like a real request is in flight, then
+    // reveal the canned answer — no DB/document search happens here at all.
+    await new Promise((resolve) => setTimeout(resolve, 650))
+
+    set((state) => ({
+      messagesByChatId: {
+        ...state.messagesByChatId,
+        [activeChatId]: (state.messagesByChatId[activeChatId] || []).map((message) =>
+          message.id === placeholder.id
+            ? { ...message, content: answer, status: 'done', isNew: true }
+            : message,
+        ),
+      },
+      activeRequest: null,
+      loading: false,
+    }))
+  },
+
   stopGeneration: () => {
     const request = get().activeRequest
     if (!request?.abortController) return
